@@ -1,3 +1,3 @@
-# @PROJECT_NAME@
+# Turtle
 
 A Python to C++ transcompiler

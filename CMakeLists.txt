@@ -26,7 +26,7 @@ file(GLOB_RECURSE PROJECT_SOURCES
      "src/*.cpp"
 )
 
-list(REMOVE_ITEM PROJECT_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp")
+#list(REMOVE_ITEM PROJECT_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp")
 
 #Generate the static library from the library sources
 add_library(LT_SOURCES STATIC 
