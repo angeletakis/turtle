@@ -5,106 +5,6 @@ project(turtle		 		VERSION 1.0)
 set(PROJECT_DESCRIPTION 		"My Python -> C++ Transcompiler")
 set(PROJECT_MAINTAINER_GIT_USERNAME 	"angeletakis")
 set(PROJECT_MAINTAINER_NAME 		"Alexios Angel")
-set(PROJECT_LSC_NAME			"agpl")
-
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/.git")
-	execute_process(COMMAND git init -b main)
-endif()
-
-file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/.github")
-
-if(NOT PROJECT_MAINTAINER_NAME MATCHES ".+" AND PROJECT_MAINTAINER_GIT_USERNAME MATCHES ".+")
-	execute_process(
-		COMMAND python3 -c "
-from urllib.request import urlopen
-import json
-
-url = 'https://api.github.com/users/${PROJECT_MAINTAINER_GIT_USERNAME}'
-GH_USER_DATA = json.loads(urlopen(url).read())
-
-GH_NAME = GH_USER_DATA['name']
-if GH_NAME: print(GH_USER_DATA['name'], end='')
-"
-		OUTPUT_VARIABLE	 PROJECT_MAINTAINER_NAME
-	)
-	if(NOT PROJECT_MAINTAINER_NAME MATCHES ".+")
-		execute_process(
-                	COMMAND git config --global --get user.name
-			OUTPUT_VARIABLE PROJECT_MAINTAINER_NAME
-		)
-		string(STRIP "${PROJECT_MAINTAINER_NAME}" PROJECT_MAINTAINER_NAME)
-	endif()
-	message(STATUS "Users name is '${PROJECT_MAINTAINER_NAME}'")
-endif()
-
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/.github/FUNDING.yml" AND PROJECT_MAINTAINER_GIT_USERNAME MATCHES ".+")
-	file(WRITE "${PROJECT_SOURCE_DIR}/.github/FUNDING.yml"
-"
-github: 	 ${PROJECT_MAINTAINER_GIT_USERNAME}
-patreon: 	 # Replace with a single patren username
-open_collective: # Replace with a single Open Collective username
-ko_fi: 		 # Replace with a single Ko-fi username
-tidelift: 	 # Replace with a single Tidelift platform-name/package-name e.g., npm/babel
-custom:		 # Replace with custom url (i.e. paypal, your website)
-"
-	)
-	message(STATUS "Created .github/FUNDING.yml")
-endif()
-
-execute_process(
-		COMMAND python3 -c "
-from urllib.request import urlopen
-from datetime import date
-import json
-
-from os import listdir
-from os.path import isfile, join
-onlyfiles = [f for f in listdir('${PROJECT_SOURCE_DIR}') if isfile(join('${PROJECT_SOURCE_DIR}', f))]
-
-lscfile = [f for f in onlyfiles if 'license' in f.lower()]
-
-if lscfile:
-	print('License exists')
-	exit()
-lsc = '${PROJECT_LSC_NAME}'.lower()
-author = '${PROJECT_MAINTAINER_NAME}'
-url = 'https://api.github.com/licenses'
-output = json.loads(urlopen(url).read())
-url = [x['url'] for x in output if lsc in x['key'].lower()]
-if not url:
-	exit()
-output = json.loads(urlopen(url[0]).read())
-lsctext = output['body']
-
-lsctext = lsctext.replace('[year]',     str(date.today().year)) \
-                 .replace('[fullname]', author)
-
-with open('${PROJECT_SOURCE_DIR}/LICENSE.txt', 'w') as f:
-        f.write(lsctext)
-
-lsc = lsc.title()
-print('Created license for target \\'%s\\'' % lsc)
-"
-	OUTPUT_VARIABLE LSC_STATUS_MSG
-)
-string(STRIP "${LSC_STATUS_MSG}" LSC_STATUS_MSG)
-message(STATUS "${LSC_STATUS_MSG}")
-
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/.gitignore") 
-	execute_process(
-		COMMAND python -c "
-from urllib.request import urlopen
-import json
-
-templateUrl = 'https://api.github.com/gitignore/templates/C++'
-body = json.loads(urlopen(templateUrl).read())
-
-with open('.gitignore', 'w') as f:
-	f.write(body['source'])
-"
-)
-	message(STATUS "Created .gitignore")
-endif()
 
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/include")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
@@ -157,8 +57,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(ctre)
 
-
-add_subdirectory("boost-cmake")
 include_directories("${ctre_SOURCE_DIR}/single-header")
 
 if(advice-detachedHead MATCHES "(true)|(false)")
