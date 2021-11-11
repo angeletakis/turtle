@@ -31,12 +31,21 @@
 *.out
 *.app
 
-#Downloaded dependencies via CMake
-_dep/
+# CodeBlocks File
+.cbp
 
-#CMake auto generated files
-CMakeFiles/
+# CMake auto generated files
+CMakeLists.txt.user
 CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
 
-#Compiled files
+# Compiled files
 bin/
