@@ -157,6 +157,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(ctre)
 
+
+add_subdirectory("boost-cmake")
 include_directories("${ctre_SOURCE_DIR}/single-header")
 
 if(advice-detachedHead MATCHES "(true)|(false)")
