@@ -55,3 +55,7 @@ bin/
 
 # Python Enviroment Files
 venv/
+
+# Ninja build files
+.ninja_deps
+.ninja_log
