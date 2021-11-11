@@ -49,3 +49,6 @@ _deps
 
 # Compiled files
 bin/
+
+#IDE files
+.idea
