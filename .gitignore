@@ -32,7 +32,7 @@
 *.app
 
 # CodeBlocks File
-.cbp
+*.cbp
 
 # CMake auto generated files
 CMakeLists.txt.user
