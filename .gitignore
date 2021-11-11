@@ -50,5 +50,8 @@ _deps
 # Compiled files
 bin/
 
-#IDE files
-.idea
+# IDE files
+.idea/
+
+# Python Enviroment Files
+venv/
