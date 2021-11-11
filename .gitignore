@@ -32,10 +32,10 @@
 *.app
 
 #Downloaded dependencies via CMake
-_dep/*
+_dep/
 
 #CMake auto generated files
-CMakeFiles/*
+CMakeFiles/
 
 #Compiled files
-bin/*
+bin/
