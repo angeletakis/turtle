@@ -36,6 +36,7 @@ _dep/
 
 #CMake auto generated files
 CMakeFiles/
+CMakeCache.txt
 
 #Compiled files
 bin/
