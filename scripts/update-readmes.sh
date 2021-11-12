@@ -2,4 +2,13 @@
 
 
 # Looks for a .github directory and outputs a markdown file
-find . -maxdepth 2 -type d -exec bash -c "pandoc --from markdown --to plain .github/README.md -o README.txt" \;
+turtle_root="~/turtle"
+dirs=( . src include lib docs scripts )
+
+for d in ${dirs[@]}; do
+  mkdwnfile="$turtle_root/$d/.github/README.md"
+  txtfile="$turtle_root/$d/README.txt"
+  [ -f "$txtfile" ]   && rm "$txtfile"
+  [ -f "$mkdwnfile" ] && pandoc --verbose --from markdown --to plain "$mkdwnfile" -o "$txtfile"
+  echo "$?"
+done
