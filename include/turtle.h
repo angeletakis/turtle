@@ -8,6 +8,6 @@
 #include <boost/filesystem.hpp>
 #include "global.h"
 #include "boost/program_options.hpp"
-int turtle(const boost::program_options::variables_map args);
+int turtle_main(const boost::program_options::variables_map args);
 
 #endif //TURTLE_TURTLE_H

@@ -5,6 +5,6 @@
 #ifndef TURTLE_LEXICALIZE_H
 #define TURTLE_LEXICALIZE_H
 
-void lexicalize(void);
+void lexicalize(std::string &filedata, std::vector<turtle::lexeme_t> &lexemes);
 
 #endif //TURTLE_LEXICALIZE_H

@@ -26,6 +26,8 @@ inline void assertion_failed(char const *expr, char const *function,
 }
 } // namespace boost
 
+// The definition of terminate_handler is in global.cpp
+// in order to avoid multiple definitions when linking
 void terminate_handler(void);
 
 typedef boost::error_info<struct tag_stacktrace, boost::stacktrace::stacktrace>
