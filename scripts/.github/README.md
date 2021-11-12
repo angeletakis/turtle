@@ -1,7 +1,5 @@
 # Turtle Scripts
 
----
-
 | Command........................... | Description |
 |---------------------|--------------------------------------------------------------------------|
 | `clean.sh`          | remove any generated files from cmake                                    |
