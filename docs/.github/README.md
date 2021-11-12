@@ -1,3 +1,3 @@
-# Test document
+# Turtle Docs
 
-this is a test
+This directory contains Documentation and notes relating to the project.
