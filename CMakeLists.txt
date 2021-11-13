@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.8.0)
 include(FetchContent)
 include(GNUInstallDirs)
 
-project(turtle		 		        VERSION 1.0)
-set(PROJECT_DESCRIPTION             "My Python -> C++ Transcompiler")
+project(turtle VERSION 1.0)
+set(PROJECT_DESCRIPTION "My Python -> C++ Transcompiler")
 set(PROJECT_MAINTAINER_GIT_USERNAME "angeletakis")
-set(PROJECT_MAINTAINER_NAME 		"Alexios Angel")
+set(PROJECT_MAINTAINER_NAME "Alexios Angel")
 
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/include")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
@@ -15,19 +15,19 @@ file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
-set(CMAKE_CXX_STANDARD 		    20)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_BUILD_TYPE		    Debug)
+set(CMAKE_BUILD_TYPE Debug)
 
 #vanilla flags
-set(CMAKE_CXX_FLAGS		        "${CMAKE_CXX_FLAGS} -std=c++${CMAKE_CXX_STANDARD}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++${CMAKE_CXX_STANDARD}")
 
 #warnings and debug info
-set(CMAKE_CXX_FLAGS		        "${CMAKE_CXX_FLAGS} -ggdb -Wall -Wextra -Werror -Wno-c99-designator")
-set(CMAKE_CXX_FLAGS             "${CMAKE_CXX_FLAGS} -Wno-deprecated-enum-enum-conversion -Wno-deprecated-anon-enum-enum-conversion")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall -Wextra -Werror -Wno-c99-designator")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-enum-enum-conversion -Wno-deprecated-anon-enum-enum-conversion")
 
 #reqiured flags to build project
-set(CMAKE_CXX_FLAGS		        "${CMAKE_CXX_FLAGS} -fsigned-char -fno-strict-aliasing -fbracket-depth=512 -march=native")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char -fno-strict-aliasing -fbracket-depth=512 -march=native")
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
@@ -58,47 +58,47 @@ find_package(Backtrace)
 # Create a sources variable with a link to all cpp files to compile
 
 # check if boost was found
-if(Boost_FOUND)
-    message ("boost found")
+if (Boost_FOUND)
+    message("boost found")
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-else()
-    message (FATAL_ERROR "Cannot find Boost")
-endif()
+else ()
+    message(FATAL_ERROR "Cannot find Boost")
+endif ()
 
 #Git outputs a ugly message when downloading the release version of 
-execute_process (
-    COMMAND 		git config --global --get advice.detachedHead
-    OUTPUT_VARIABLE	advice-detachedHead-bool
+execute_process(
+        COMMAND git config --global --get advice.detachedHead
+        OUTPUT_VARIABLE advice-detachedHead-bool
 )
 
-execute_process (
-    COMMAND             git config --global advice.detachedHead false
+execute_process(
+        COMMAND git config --global advice.detachedHead false
 )
 
 message(STATUS "Fetching dependencies")
 
 set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(
-  ctre
-  GIT_REPOSITORY 	 https://github.com/hanickadot/compile-time-regular-expressions.git
-  GIT_TAG        	 95c63867bf0f6497825ef6cf44a7d0791bd25883 # v3.4.1
-  GIT_PROGRESS		 TRUE
-  USES_TERMINAL_DOWNLOAD TRUE
+        ctre
+        GIT_REPOSITORY https://github.com/hanickadot/compile-time-regular-expressions.git
+        GIT_TAG 95c63867bf0f6497825ef6cf44a7d0791bd25883 # v3.4.1
+        GIT_PROGRESS TRUE
+        USES_TERMINAL_DOWNLOAD TRUE
 )
 
 FetchContent_MakeAvailable(ctre)
 
 include_directories("${ctre_SOURCE_DIR}/single-header")
 
-if(advice-detachedHead MATCHES "(true)|(false)")
-  execute_process (
-    COMMAND             git config --global advice.detachedHead "${advice-detachedHead-bool}"
-  )
-else()
- execute_process (
-    COMMAND             git config --global --unset advice.detachedHead
-  )
-endif()
+if (advice-detachedHead MATCHES "(true)|(false)")
+    execute_process(
+            COMMAND git config --global advice.detachedHead "${advice-detachedHead-bool}"
+    )
+else ()
+    execute_process(
+            COMMAND git config --global --unset advice.detachedHead
+    )
+endif ()
 
 
 # Add an executable with the above sources
