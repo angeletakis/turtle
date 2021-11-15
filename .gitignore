@@ -47,6 +47,10 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+# CMakeModule Cotire
+cotire/
+turtle_CXX_cotire.cmake
+
 # Compiled files
 bin/
 

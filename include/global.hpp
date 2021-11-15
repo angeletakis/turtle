@@ -8,6 +8,10 @@
 #include <boost/stacktrace.hpp>
 #define LOG BOOST_LOG_TRIVIAL
 
+#ifndef NDEBUG
+#define DEBUG_CPP
+#endif
+
 namespace boost {
 inline void assertion_failed_msg(char const *expr, char const *msg,
                                  char const *function, char const * /*file*/,
@@ -22,7 +26,7 @@ inline void assertion_failed_msg(char const *expr, char const *msg,
 
 inline void assertion_failed(char const *expr, char const *function,
                              char const *file, long line) {
-  ::boost::assertion_failed_msg(expr, 0 /*nullptr*/, function, file, line);
+  ::boost::assertion_failed_msg(expr, nullptr /*nullptr*/, function, file, line);
 }
 } // namespace boost
 

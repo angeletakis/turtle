@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.8.0)
 include(FetchContent)
-include(GNUInstallDirs)
 
 project(turtle VERSION 1.0)
 set(PROJECT_DESCRIPTION "My Python -> C++ Transcompiler")
 set(PROJECT_MAINTAINER_GIT_USERNAME "angeletakis")
 set(PROJECT_MAINTAINER_NAME "Alexios Angel")
+
+set (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+include(cotire)
+include(ucm)
 
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/include")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
@@ -20,26 +23,33 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Debug)
 
 #vanilla flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++${CMAKE_CXX_STANDARD}")
+ucm_add_flags(CXX "-std=c++${CMAKE_CXX_STANDARD}")
 
+# CTRE produces too many warnings :(
+# Most of these disabled warnings are a good idea tho
 #warnings
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weverything -fmax-errors=5 -Werror -Wno-c99-designator -Wno-unused-command-line-argument")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-enum-enum-conversion -Wno-deprecated-anon-enum-enum-conversion")
+ucm_add_flags(CXX
+        -Wall -Wextra -Wnewline-eof -Wmissing-prototypes
+        -Werror -ferror-limit=5 -fmax-errors=5
+        -Wno-c99-designator -Wno-unused-command-line-argument
+        -Wno-deprecated-enum-enum-conversion -Wno-deprecated-anon-enum-enum-conversion
+        #-Weverything
+        #-Wno-c++20-compat -Wno-c++98-compat -Wno-pre-c++17-compat -Wno-c++98-compat-pedantic -Wno-undef
+        #-Wno-padded -Wno-gnu-anonymous-struct -Wno-nested-anon-types
+        #-Wno-missing-noreturn -Wno-float-equal -Wno-implicit-int-float-conversion
+        #-Wno-sign-conversion -Wno-ctad-maybe-unsupported -Wno-class-varargs
+        #-Wno-old-style-cast -Wno-shadow -Wno-reserved-macro-identifier
+        )
 
 # Debug flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3 -fno-eliminate-unused-debug-types -fdebug-macro")
-
-# Static Analysis flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze -Xanalyzer -analyzer-output=text")
+ucm_add_flags(CXX -ggdb3 -fno-eliminate-unused-debug-types -fdebug-macro)
 
 #required flags to build project
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char -fno-strict-aliasing -fbracket-depth=512 -march=native")
+ucm_add_flags(CXX -fsigned-char -fno-strict-aliasing -fbracket-depth=512 -march=native)
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
-
-#list(REMOVE_ITEM PROJECT_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp")
 
 #Generate the static library from the library sources
 
@@ -116,10 +126,12 @@ add_executable(${PROJECT_NAME}
         src/global.cpp
         src/lexicalize.cpp
         src/turtle.cpp
+        src/node.cpp
 
-        include/global.h
-        include/lexicalize.h
-        include/turtle.h
-        include/node.h src/node.cpp)
+        include/global.hpp
+        include/lexicalize.hpp
+        include/turtle.hpp
+        include/node.hpp)
 
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${Threads_LIBRARIES} ${Backtrace_LIBRARIES})
+cotire(${PROJECT_NAME})

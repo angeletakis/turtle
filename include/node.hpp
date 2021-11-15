@@ -1,5 +1,5 @@
-#ifndef _TURTLE_TOKEN_H
-#define _TURTLE_TOKEN_H
+#ifndef TURTLE_TOKEN_H
+#define TURTLE_TOKEN_H
 
 /*
  * This file contains the magic numbers and data structure
@@ -46,7 +46,7 @@
 #include <cstring>
 #include <string>
 
-#include "global.h"
+#include "global.hpp"
 
 //#include <boost/multiprecision/cpp_int.hpp>
 //#include <boost/multiprecision/cpp_dec_float.hpp>
@@ -56,8 +56,7 @@ namespace turtle {
 // In case I want to change it to something bigger in the future
 typedef uint64_t turtle_flag_t;
 
-template <class T>
-using turtle_vector = std::basic_string<T>;
+template <class T> using turtle_vector = std::basic_string<T>;
 
 typedef long turtle_int;
 typedef turtle_int turtle_float;
@@ -74,11 +73,11 @@ typedef turtle_any t_any;
         num = static_cast<turtle_int>(_n);
     }
 };*/
-}  // namespace turtle
+} // namespace turtle
 
 //      M_turtle_flag(N) (0000'0000 0000'0000 0000'0000 0000'0001 <<  N )
-#define M_turtle_flag(N)                  \
-  (static_cast<turtle::turtle_flag_t>(1u) \
+#define M_turtle_flag(N)                                                       \
+  (static_cast<turtle::turtle_flag_t>(1u)                                      \
    << static_cast<turtle::turtle_flag_t>(N))
 
 consteval turtle::turtle_flag_t constexpr_ceil(const float num) {
@@ -93,37 +92,37 @@ consteval size_t Log2(const size_t n) {
 consteval size_t num_of_bits_required(const size_t max) {
   return constexpr_ceil(Log2(max) + 1);
 }
-#define bit_range_will_not_overflow(r1, r2) \
+#define bit_range_will_not_overflow(r1, r2)                                    \
   (((r1) + (r2)) < bits_in_turtle_flag)
 #define bit_range_will_not_underflow(r1) ((r1) >= 0)
-#define CHECK_BIT_RANGE(BITS_NEEDED, MESSAGE)                              \
-  static_assert(bit_range_will_not_overflow(                               \
-                    num_of_bits_required_for_token_type, (BITS_NEEDED)) && \
-                    bit_range_will_not_underflow(BITS_NEEDED),             \
+#define CHECK_BIT_RANGE(BITS_NEEDED, MESSAGE)                                  \
+  static_assert(bit_range_will_not_overflow(                                   \
+                    num_of_bits_required_for_token_type, (BITS_NEEDED)) &&     \
+                    bit_range_will_not_underflow(BITS_NEEDED),                 \
                 MESSAGE)
 
-#if DEBUG_CPP
+#if 0 // def DEBUG_CPP
 #include "enum.h"
-#define TURTLE_CLASS(ENAME, ...) \
+#define TURTLE_CLASS(ENAME, ...)                                               \
   BETTER_ENUM(ENAME, turtle_flag, __VA_ARGS__, NUMBER_OF_ENUMS)
 #else
-#define TURTLE_CLASS(ENAME, ...)                           \
-  struct ENAME {                                           \
-    enum : turtle_flag_t { __VA_ARGS__, NUMBER_OF_ENUMS }; \
+#define TURTLE_CLASS(ENAME, ...)                                               \
+  struct ENAME {                                                               \
+    enum : turtle_flag_t { __VA_ARGS__, NUMBER_OF_ENUMS };                     \
   };
 #endif
 
 namespace turtle::token {
-#define __ENUM_NAME Type
-TURTLE_CLASS(__ENUM_NAME, CONTROL,
-             DELIMITERS,  // such as '(' or ')' or '.' or '[' or ']' ','
+#define ENUM_NAME Type
+TURTLE_CLASS(ENUM_NAME, CONTROL,
+             DELIMITERS, // such as '(' or ')' or '.' or '[' or ']' ','
              ARITHMETIC,
-             KEYWORD,    // any builtin type
-             DATA,       // such as a number or string
-             IDENTIFIER  // any label
+             KEYWORD,   // any builtin type
+             DATA,      // such as a number or string
+             IDENTIFIER // any label
 )
-#undef __ENUM_NAME
-}  // namespace turtle::token
+#undef ENUM_NAME
+} // namespace turtle::token
 
 constexpr auto num_of_bits_required_for_token_type =
     num_of_bits_required(turtle::token::Type::NUMBER_OF_ENUMS);
@@ -141,9 +140,8 @@ namespace turtle {
 //          \/
 // std::vector<struct Node> SemanticGroups
 
-#if DEBUG_CPP
-template <class T>
-constexpr const char *flagstr(T values, turtle_flag flag) {
+#if 0//DEBUG_CPP
+template <class T> constexpr const char *flagstr(T values, turtle_flag flag) {
   for (const auto &v : values) {
     if (v._to_integral() == flag) {
       return v._to_string();
@@ -155,48 +153,48 @@ constexpr const char *flagstr(T values, turtle_flag flag) {
 
 namespace token {
 
-#define __ENUM_NAME Control
-TURTLE_CLASS(__ENUM_NAME, NULL_TOKEN, HAS_VALUE = NULL_TOKEN, NEWLINE, NL,
+#define ENUM_NAME Control
+TURTLE_CLASS(ENUM_NAME, NULL_TOKEN, HAS_VALUE = NULL_TOKEN, NEWLINE, NL,
              ENDMARKER, ERROR, ERRORTOKEN, TokenError, UNSUPPORTED)
-#undef __ENUM_NAME
+#undef ENUM_NAME
 
-#define __ENUM_NAME Data
-TURTLE_CLASS(__ENUM_NAME, DATA_TYPE_STRING,
-             DATA_TYPE_RAW,  // Used in combination with the string flag
+#define ENUM_NAME Data
+TURTLE_CLASS(ENUM_NAME, DATA_TYPE_STRING,
+             DATA_TYPE_RAW, // Used in combination with the string flag
              DATA_TYPE_FORMATTED,
-             DATA_TYPE_FORMAT_TYPE,  // "%s" printf style or "{}".format style?
+             DATA_TYPE_FORMAT_TYPE, // "%s" printf style or "{}".format style?
              DATA_TYPE_UNICODE,
 
              DATA_TYPE_NUMBER, DATA_TYPE_INT, DATA_TYPE_FLOAT,
              DATA_TYPE_COMPLEX, DATA_TYPE_EXPONENTIAL, DATA_TYPE_HEX,
              DATA_TYPE_OCTAL, DATA_TYPE_BINARY,
-             DATA_TYPE_,  // unknown -- make effort to determine type
+             DATA_TYPE_, // unknown -- make effort to determine type
              DATA_TYPE_COMMENT)
-#undef /*cuz its*/ __ENUM_NAME  // sun
+#undef /*cuz its*/ ENUM_NAME // sun
 
-#define __ENUM_NAME Operator
-TURTLE_CLASS(__ENUM_NAME,
-             DELIMITER_AT_SIGN,  // '@' Python decorator, akin to passing a
-                                 // function pointer
-             DELIMITER_COLON,    // ':' symbol
+#define ENUM_NAME Operator
+TURTLE_CLASS(ENUM_NAME,
+             DELIMITER_AT_SIGN, // '@' Python decorator, akin to passing a
+                                // function pointer
+             DELIMITER_COLON,   // ':' symbol
              DELIMITER_SEMICOLON, DELIMITER_COMMA,
-             DELIMITER_PERIOD,    // access token '.'
-             DELIMITER_ELLIPSIS,  // ...
+             DELIMITER_PERIOD,   // access token '.'
+             DELIMITER_ELLIPSIS, // ...
              DELIMINAR_RARROW, DELIMITER_BRACE,
              // DELIMITER_ACCESS,
 
              DELIMITER_LEFT_OR_RIGHT_BRACE = DELIMITER_BRACE +
-                                             1u,  // 0 = Left, 1 = Right
-             DELIMITER_CURVED_BRACE,              // '(' or ')'
-             DELIMITER_SQUARE_BRACE,              // '[' or ']'
-             DELIMITER_CURLY_BRACE,               // '{' or '}'
-             DELIMITER_ASSIGN                     // '=' symbol
+                                             1u, // 0 = Left, 1 = Right
+             DELIMITER_CURVED_BRACE,             // '(' or ')'
+             DELIMITER_SQUARE_BRACE,             // '[' or ']'
+             DELIMITER_CURLY_BRACE,              // '{' or '}'
+             DELIMITER_ASSIGN                    // '=' symbol
 )
-#undef __ENUM_NAME
+#undef ENUM_NAME
 
 // like identifiers these will be represented as integers
-#define __ENUM_NAME Keyword
-TURTLE_CLASS(__ENUM_NAME, KEYWORD_FALSE, KEYWORD_CLASS, KEYWORD_FINALLY,
+#define ENUM_NAME Keyword
+TURTLE_CLASS(ENUM_NAME, KEYWORD_FALSE, KEYWORD_CLASS, KEYWORD_FINALLY,
              KEYWORD_IS, KEYWORD_RETURN, KEYWORD_NONE, KEYWORD_CONTINUE,
              KEYWORD_FOR, KEYWORD_LAMBDA, KEYWORD_TRY, KEYWORD_TRUE,
              KEYWORD_DEF, KEYWORD_FROM, KEYWORD_NONLOCAL, KEYWORD_WHILE,
@@ -205,12 +203,12 @@ TURTLE_CLASS(__ENUM_NAME, KEYWORD_FALSE, KEYWORD_CLASS, KEYWORD_FINALLY,
              KEYWORD_YIELD, KEYWORD_ASSERT, KEYWORD_ELSE, KEYWORD_IMPORT,
              KEYWORD_PASS, KEYWORD_BREAK, KEYWORD_EXCEPT, KEYWORD_IN,
              KEYWORD_RAISE)
-#undef __ENUM_NAME
+#undef ENUM_NAME
 
-#define __ENUM_NAME Arithmetic
-TURTLE_CLASS(__ENUM_NAME,
-             ARITHMETIC_OPERATION = 0u,  // 1 = ARITHMETIC, 0 = LOGICAL (greater
-                                         // than, less than, equal to, not)
+#define ENUM_NAME Arithmetic
+TURTLE_CLASS(ENUM_NAME,
+             ARITHMETIC_OPERATION = 0u, // 1 = ARITHMETIC, 0 = LOGICAL (greater
+                                        // than, less than, equal to, not)
 
              ARITHMETIC_ADD, ARITHMETIC_SUB, ARITHMETIC_MULL, ARITHMETIC_DIV,
              ARITHMETIC_MOD, ARITHMETIC_FLOOR, ARITHMETIC_EXPONENTIAL,
@@ -218,9 +216,9 @@ TURTLE_CLASS(__ENUM_NAME,
              ARITHMETIC_BIT_NOT, ARITHMETIC_BIT_LEFT_SHIFT,
              ARITHMETIC_BIT_RIGHT_SHIFT,
 
-             ARITHMETIC_EQUAL_TO = 1,  // LOGICAL CLASS
+             ARITHMETIC_EQUAL_TO = 1, // LOGICAL CLASS
              ARITHMETIC_GREATER_THAN, ARITHMETIC_LESS_THAN,
-             ARITHMETIC_NOT  //,
+             ARITHMETIC_NOT //,
 
              // ARITHMETIC_NOT_EQUAL_TO,
 
@@ -228,7 +226,7 @@ TURTLE_CLASS(__ENUM_NAME,
 
              // ARITHMETIC_LESS_THAN_EQUAL_TO,
 )
-#undef __ENUM_NAME
+#undef ENUM_NAME
 
 namespace flag {
 
@@ -256,15 +254,14 @@ namespace flag {
 
 // Refer to the huge comment in the flag namespace on wtf this is & does
 #define M_typeFlagMacro(N) (N << tokenTypeOffset)
-#define __ENUM_NAME Type
-TURTLE_CLASS(__ENUM_NAME,
-             CONTROL = M_typeFlagMacro(token::__ENUM_NAME::CONTROL),
-             DELIMITERS = M_typeFlagMacro(token::__ENUM_NAME::DELIMITERS),
-             ARITHMETIC = M_typeFlagMacro(token::__ENUM_NAME::ARITHMETIC),
-             KEYWORD = M_typeFlagMacro(token::__ENUM_NAME::KEYWORD),
-             DATA = M_typeFlagMacro(token::__ENUM_NAME::DATA),
-             IDENTIFIER = M_typeFlagMacro(token::__ENUM_NAME::IDENTIFIER))
-#undef __ENUM_NAME
+#define ENUM_NAME Type
+TURTLE_CLASS(ENUM_NAME, CONTROL = M_typeFlagMacro(token::ENUM_NAME::CONTROL),
+             DELIMITERS = M_typeFlagMacro(token::ENUM_NAME::DELIMITERS),
+             ARITHMETIC = M_typeFlagMacro(token::ENUM_NAME::ARITHMETIC),
+             KEYWORD = M_typeFlagMacro(token::ENUM_NAME::KEYWORD),
+             DATA = M_typeFlagMacro(token::ENUM_NAME::DATA),
+             IDENTIFIER = M_typeFlagMacro(token::ENUM_NAME::IDENTIFIER))
+#undef ENUM_NAME
 /*
  *
  *   ┌──> Flag Type - Control Class Id
@@ -283,17 +280,17 @@ TURTLE_CLASS(__ENUM_NAME,
  *     └────> Is newline
  */
 
-#define __ENUM_NAME Control
-TURTLE_CLASS(__ENUM_NAME, NULL_TOKEN = 0u | flag::Type::CONTROL,
-             NEWLINE = M_turtle_flag(token::__ENUM_NAME::NEWLINE) |
-                       M_turtle_flag(token::__ENUM_NAME::HAS_VALUE) |
+#define ENUM_NAME Control
+TURTLE_CLASS(ENUM_NAME, NULL_TOKEN = 0u | flag::Type::CONTROL,
+             NEWLINE = M_turtle_flag(token::ENUM_NAME::NEWLINE) |
+                       M_turtle_flag(token::ENUM_NAME::HAS_VALUE) |
                        flag::Type::CONTROL,
-             ENDMARKER = M_turtle_flag(token::__ENUM_NAME::ENDMARKER) |
-                         M_turtle_flag(token::__ENUM_NAME::HAS_VALUE) |
+             ENDMARKER = M_turtle_flag(token::ENUM_NAME::ENDMARKER) |
+                         M_turtle_flag(token::ENUM_NAME::HAS_VALUE) |
                          flag::Type::CONTROL,
              ERRORTOKEN, TokenError, UNSUPPORTED)
 #undef offset
-#undef __ENUM_NAME
+#undef ENUM_NAME
 
 /*
     Any identifier Tokens are represented by a numeric id,
@@ -321,56 +318,55 @@ TURTLE_CLASS(__ENUM_NAME, NULL_TOKEN = 0u | flag::Type::CONTROL,
        │└─────> Format Type
        └──────> Is unicode string
  */
-#define __ENUM_NAME Data
+#define ENUM_NAME Data
 TURTLE_CLASS(
-    __ENUM_NAME,
-    DATA_TYPE_STRING = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_STRING) |
+    ENUM_NAME,
+    DATA_TYPE_STRING = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_STRING) |
                        flag::Type::DATA,
-    DATA_TYPE_RAW = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_RAW) |
+    DATA_TYPE_RAW = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_RAW) |
                     flag::Type::DATA,
-    DATA_TYPE_FORMATTED =
-        M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_FORMATTED) |
-        flag::Type::DATA,
+    DATA_TYPE_FORMATTED = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_FORMATTED) |
+                          flag::Type::DATA,
     PRINTF_STYLE_FORMAT =
-        M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_FORMAT_TYPE) |
+        M_turtle_flag(token::ENUM_NAME::DATA_TYPE_FORMAT_TYPE) |
         flag::Type::DATA,
-    DATA_TYPE_UNICODE = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_UNICODE) |
+    DATA_TYPE_UNICODE = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_UNICODE) |
                         flag::Type::DATA,
 
-    DATA_TYPE_RAW_STRING = (flag::__ENUM_NAME::DATA_TYPE_RAW |
-                            flag::__ENUM_NAME::DATA_TYPE_STRING),
-    DATA_TYPE_FORMATED_STRING = (flag::__ENUM_NAME::DATA_TYPE_FORMATTED |
-                                 flag::__ENUM_NAME::DATA_TYPE_STRING),
+    DATA_TYPE_RAW_STRING = (flag::ENUM_NAME::DATA_TYPE_RAW |
+                            flag::ENUM_NAME::DATA_TYPE_STRING),
+    DATA_TYPE_FORMATED_STRING = (flag::ENUM_NAME::DATA_TYPE_FORMATTED |
+                                 flag::ENUM_NAME::DATA_TYPE_STRING),
     DATA_TYPE_FORMATED_PRINTF_STRING =
-        (flag::__ENUM_NAME::PRINTF_STYLE_FORMAT |
-         flag::__ENUM_NAME::DATA_TYPE_FORMATED_STRING),
+        (flag::ENUM_NAME::PRINTF_STYLE_FORMAT |
+         flag::ENUM_NAME::DATA_TYPE_FORMATED_STRING),
     DATA_TYPE_FORMATED_PYTHON_STRING = DATA_TYPE_FORMATED_STRING,
-    DATA_TYPE_UNICODE_STRING = (flag::__ENUM_NAME::DATA_TYPE_UNICODE |
-                                flag::__ENUM_NAME::DATA_TYPE_STRING),
+    DATA_TYPE_UNICODE_STRING = (flag::ENUM_NAME::DATA_TYPE_UNICODE |
+                                flag::ENUM_NAME::DATA_TYPE_STRING),
     DATA_TYPE_FORMATED_UNICODE_STRING =
-        (flag::__ENUM_NAME::DATA_TYPE_FORMATED_STRING |
-         flag::__ENUM_NAME::DATA_TYPE_UNICODE_STRING),
+        (flag::ENUM_NAME::DATA_TYPE_FORMATED_STRING |
+         flag::ENUM_NAME::DATA_TYPE_UNICODE_STRING),
 
-    DATA_TYPE_COMMENT = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_COMMENT) |
+    DATA_TYPE_COMMENT = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_COMMENT) |
                         flag::Type::DATA,
-    DATA_TYPE_NUMBER = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_NUMBER) |
+    DATA_TYPE_NUMBER = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_NUMBER) |
                        flag::Type::DATA,
-    DATA_TYPE_INT = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_INT) |
-                    flag::__ENUM_NAME::DATA_TYPE_NUMBER,
-    DATA_TYPE_FLOAT = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_FLOAT) |
-                      flag::__ENUM_NAME::DATA_TYPE_NUMBER,
-    DATA_TYPE_COMPLEX = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_COMPLEX) |
-                        flag::__ENUM_NAME::DATA_TYPE_NUMBER,
+    DATA_TYPE_INT = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_INT) |
+                    flag::ENUM_NAME::DATA_TYPE_NUMBER,
+    DATA_TYPE_FLOAT = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_FLOAT) |
+                      flag::ENUM_NAME::DATA_TYPE_NUMBER,
+    DATA_TYPE_COMPLEX = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_COMPLEX) |
+                        flag::ENUM_NAME::DATA_TYPE_NUMBER,
     DATA_TYPE_EXPONENTIAL =
-        M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_EXPONENTIAL) |
-        flag::__ENUM_NAME::DATA_TYPE_NUMBER,
-    DATA_TYPE_HEX = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_HEX) |
-                    flag::__ENUM_NAME::DATA_TYPE_INT,
-    DATA_TYPE_OCTAL = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_OCTAL) |
-                      flag::__ENUM_NAME::DATA_TYPE_INT,
-    DATA_TYPE_BINARY = M_turtle_flag(token::__ENUM_NAME::DATA_TYPE_BINARY) |
-                       flag::__ENUM_NAME::DATA_TYPE_INT)
-#undef __ENUM_NAME
+        M_turtle_flag(token::ENUM_NAME::DATA_TYPE_EXPONENTIAL) |
+        flag::ENUM_NAME::DATA_TYPE_NUMBER,
+    DATA_TYPE_HEX = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_HEX) |
+                    flag::ENUM_NAME::DATA_TYPE_INT,
+    DATA_TYPE_OCTAL = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_OCTAL) |
+                      flag::ENUM_NAME::DATA_TYPE_INT,
+    DATA_TYPE_BINARY = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_BINARY) |
+                       flag::ENUM_NAME::DATA_TYPE_INT)
+#undef ENUM_NAME
 #undef DataShiftToMargin
 
 /*
@@ -399,86 +395,85 @@ TURTLE_CLASS(
 //
 // Then give it the DELIMITER_ASSIGN flag
 
-#define __ENUM_NAME Operator
+#define ENUM_NAME Operator
 // offset the arithmetic tokens to be next to the DELIMITER_ASSIGN token
-#define DeliminarAssignOffset_M(x) \
-  (x << (token::__ENUM_NAME::DELIMITER_ASSIGN + 1))
+#define DeliminarAssignOffset_M(x)                                             \
+  (x << (token::ENUM_NAME::DELIMITER_ASSIGN + 1))
 TURTLE_CLASS(
-    __ENUM_NAME,
-    DELIMITER_ASSIGN = M_turtle_flag(token::__ENUM_NAME::DELIMITER_ASSIGN) |
+    ENUM_NAME,
+    DELIMITER_ASSIGN = M_turtle_flag(token::ENUM_NAME::DELIMITER_ASSIGN) |
                        flag::Type::DELIMITERS,
 
     ARITHMETIC_ADD_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_ADD) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_SUB_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_SUB) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_MULL_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_MULL) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_DIV_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_DIV) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_MOD_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_MOD) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_FLOOR_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_FLOOR) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_EXPONENTIAL_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_EXPONENTIAL) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_BIT_AND_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_BIT_AND) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_BIT_OR_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_BIT_OR) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_BIT_XOR_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_BIT_XOR) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_BIT_LEFT_SHIFT_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_BIT_LEFT_SHIFT) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
     ARITHMETIC_BIT_RIGHT_SHIFT_ASSIGN =
         DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_BIT_RIGHT_SHIFT) |
-        flag::__ENUM_NAME::DELIMITER_ASSIGN,
+        flag::ENUM_NAME::DELIMITER_ASSIGN,
 
-    DELIMITER_AT_SIGN = M_turtle_flag(token::__ENUM_NAME::DELIMITER_AT_SIGN) |
+    DELIMITER_AT_SIGN = M_turtle_flag(token::ENUM_NAME::DELIMITER_AT_SIGN) |
                         flag::Type::DELIMITERS,
     //@=
-    ARITHMETIC_AT_ASSIGN = flag::__ENUM_NAME::DELIMITER_AT_SIGN |
-                           flag::__ENUM_NAME::DELIMITER_ASSIGN,
-    DELIMINAR_RARROW = M_turtle_flag(token::__ENUM_NAME::DELIMINAR_RARROW) |
+    ARITHMETIC_AT_ASSIGN = flag::ENUM_NAME::DELIMITER_AT_SIGN |
+                           flag::ENUM_NAME::DELIMITER_ASSIGN,
+    DELIMINAR_RARROW = M_turtle_flag(token::ENUM_NAME::DELIMINAR_RARROW) |
                        flag::Type::DELIMITERS,
-    DELIMITER_COLON = M_turtle_flag(token::__ENUM_NAME::DELIMITER_COLON) |
+    DELIMITER_COLON = M_turtle_flag(token::ENUM_NAME::DELIMITER_COLON) |
                       flag::Type::DELIMITERS,
-    DELIMITER_SEMICOLON =
-        M_turtle_flag(token::__ENUM_NAME::DELIMITER_SEMICOLON) |
-        flag::Type::DELIMITERS,
-    DELIMITER_COMMA = M_turtle_flag(token::__ENUM_NAME::DELIMITER_COMMA) |
+    DELIMITER_SEMICOLON = M_turtle_flag(token::ENUM_NAME::DELIMITER_SEMICOLON) |
+                          flag::Type::DELIMITERS,
+    DELIMITER_COMMA = M_turtle_flag(token::ENUM_NAME::DELIMITER_COMMA) |
                       flag::Type::DELIMITERS,
-    DELIMITER_PERIOD = M_turtle_flag(token::__ENUM_NAME::DELIMITER_PERIOD) |
+    DELIMITER_PERIOD = M_turtle_flag(token::ENUM_NAME::DELIMITER_PERIOD) |
                        flag::Type::DELIMITERS,
-    DELIMITER_ELLIPSIS = M_turtle_flag(token::__ENUM_NAME::DELIMITER_ELLIPSIS) |
+    DELIMITER_ELLIPSIS = M_turtle_flag(token::ENUM_NAME::DELIMITER_ELLIPSIS) |
                          flag::Type::DELIMITERS,
     DELIMITER_ACCESS = DELIMITER_PERIOD,
 
-    DELIMITER_BRACE = M_turtle_flag(token::__ENUM_NAME::DELIMITER_BRACE) |
+    DELIMITER_BRACE = M_turtle_flag(token::ENUM_NAME::DELIMITER_BRACE) |
                       flag::Type::DELIMITERS,
     DELIMITER_LEFT_BRACE =
-        M_turtle_flag(token::__ENUM_NAME::DELIMITER_LEFT_OR_RIGHT_BRACE) |
-        flag::Type::DELIMITERS,  // 1 = Left, 0 = Right
+        M_turtle_flag(token::ENUM_NAME::DELIMITER_LEFT_OR_RIGHT_BRACE) |
+        flag::Type::DELIMITERS, // 1 = Left, 0 = Right
 
     DELIMITER_CURVED_BRACE =
-        M_turtle_flag(token::__ENUM_NAME::DELIMITER_CURVED_BRACE) |
+        M_turtle_flag(token::ENUM_NAME::DELIMITER_CURVED_BRACE) |
         flag::Type::DELIMITERS,
     DELIMITER_SQUARE_BRACE =
-        M_turtle_flag(token::__ENUM_NAME::DELIMITER_SQUARE_BRACE) |
+        M_turtle_flag(token::ENUM_NAME::DELIMITER_SQUARE_BRACE) |
         flag::Type::DELIMITERS,
     DELIMITER_CURLY_BRACE =
-        M_turtle_flag(token::__ENUM_NAME::DELIMITER_CURLY_BRACE) |
+        M_turtle_flag(token::ENUM_NAME::DELIMITER_CURLY_BRACE) |
         flag::Type::DELIMITERS,
 
     DELIMITER_CURVED_RIGHT_BRACE = (DELIMITER_CURVED_BRACE | DELIMITER_BRACE),
@@ -492,47 +487,45 @@ TURTLE_CLASS(
                                   DELIMITER_BRACE))
 
 #undef DeliminarAssignOffset_M
-#undef __ENUM_NAME
+#undef ENUM_NAME
 
-#define __ENUM_NAME Keyword
+#define ENUM_NAME Keyword
 TURTLE_CLASS(
-    __ENUM_NAME,
-    KEYWORD_FALSE = token::__ENUM_NAME::KEYWORD_FALSE | flag::Type::KEYWORD,
-    KEYWORD_CLASS = token::__ENUM_NAME::KEYWORD_CLASS | flag::Type::KEYWORD,
-    KEYWORD_FINALLY = token::__ENUM_NAME::KEYWORD_FINALLY | flag::Type::KEYWORD,
-    KEYWORD_IS = token::__ENUM_NAME::KEYWORD_IS | flag::Type::KEYWORD,
-    KEYWORD_RETURN = token::__ENUM_NAME::KEYWORD_RETURN | flag::Type::KEYWORD,
-    KEYWORD_NONE = token::__ENUM_NAME::KEYWORD_NONE | flag::Type::KEYWORD,
-    KEYWORD_CONTINUE = token::__ENUM_NAME::KEYWORD_CONTINUE |
-                       flag::Type::KEYWORD,
-    KEYWORD_FOR = token::__ENUM_NAME::KEYWORD_FOR | flag::Type::KEYWORD,
-    KEYWORD_LAMBDA = token::__ENUM_NAME::KEYWORD_LAMBDA | flag::Type::KEYWORD,
-    KEYWORD_TRY = token::__ENUM_NAME::KEYWORD_TRY | flag::Type::KEYWORD,
-    KEYWORD_TRUE = token::__ENUM_NAME::KEYWORD_TRUE | flag::Type::KEYWORD,
-    KEYWORD_DEF = token::__ENUM_NAME::KEYWORD_DEF | flag::Type::KEYWORD,
-    KEYWORD_FROM = token::__ENUM_NAME::KEYWORD_FROM | flag::Type::KEYWORD,
-    KEYWORD_NONLOCAL = token::__ENUM_NAME::KEYWORD_NONLOCAL |
-                       flag::Type::KEYWORD,
-    KEYWORD_WHILE = token::__ENUM_NAME::KEYWORD_WHILE | flag::Type::KEYWORD,
-    KEYWORD_AND = token::__ENUM_NAME::KEYWORD_AND | flag::Type::KEYWORD,
-    KEYWORD_DEL = token::__ENUM_NAME::KEYWORD_DEL | flag::Type::KEYWORD,
-    KEYWORD_GLOBAL = token::__ENUM_NAME::KEYWORD_GLOBAL | flag::Type::KEYWORD,
-    KEYWORD_NOT = token::__ENUM_NAME::KEYWORD_NOT | flag::Type::KEYWORD,
-    KEYWORD_WITH = token::__ENUM_NAME::KEYWORD_WITH | flag::Type::KEYWORD,
-    KEYWORD_AS = token::__ENUM_NAME::KEYWORD_AS | flag::Type::KEYWORD,
-    KEYWORD_ELIF = token::__ENUM_NAME::KEYWORD_ELIF | flag::Type::KEYWORD,
-    KEYWORD_IF = token::__ENUM_NAME::KEYWORD_IF | flag::Type::KEYWORD,
-    KEYWORD_OR = token::__ENUM_NAME::KEYWORD_OR | flag::Type::KEYWORD,
-    KEYWORD_YIELD = token::__ENUM_NAME::KEYWORD_YIELD | flag::Type::KEYWORD,
-    KEYWORD_ASSERT = token::__ENUM_NAME::KEYWORD_ASSERT | flag::Type::KEYWORD,
-    KEYWORD_ELSE = token::__ENUM_NAME::KEYWORD_ELSE | flag::Type::KEYWORD,
-    KEYWORD_IMPORT = token::__ENUM_NAME::KEYWORD_IMPORT | flag::Type::KEYWORD,
-    KEYWORD_PASS = token::__ENUM_NAME::KEYWORD_PASS | flag::Type::KEYWORD,
-    KEYWORD_BREAK = token::__ENUM_NAME::KEYWORD_BREAK | flag::Type::KEYWORD,
-    KEYWORD_EXCEPT = token::__ENUM_NAME::KEYWORD_EXCEPT | flag::Type::KEYWORD,
-    KEYWORD_IN = token::__ENUM_NAME::KEYWORD_IN | flag::Type::KEYWORD,
-    KEYWORD_RAISE = token::__ENUM_NAME::KEYWORD_RAISE | flag::Type::KEYWORD)
-#undef __ENUM_NAME
+    ENUM_NAME,
+    KEYWORD_FALSE = token::ENUM_NAME::KEYWORD_FALSE | flag::Type::KEYWORD,
+    KEYWORD_CLASS = token::ENUM_NAME::KEYWORD_CLASS | flag::Type::KEYWORD,
+    KEYWORD_FINALLY = token::ENUM_NAME::KEYWORD_FINALLY | flag::Type::KEYWORD,
+    KEYWORD_IS = token::ENUM_NAME::KEYWORD_IS | flag::Type::KEYWORD,
+    KEYWORD_RETURN = token::ENUM_NAME::KEYWORD_RETURN | flag::Type::KEYWORD,
+    KEYWORD_NONE = token::ENUM_NAME::KEYWORD_NONE | flag::Type::KEYWORD,
+    KEYWORD_CONTINUE = token::ENUM_NAME::KEYWORD_CONTINUE | flag::Type::KEYWORD,
+    KEYWORD_FOR = token::ENUM_NAME::KEYWORD_FOR | flag::Type::KEYWORD,
+    KEYWORD_LAMBDA = token::ENUM_NAME::KEYWORD_LAMBDA | flag::Type::KEYWORD,
+    KEYWORD_TRY = token::ENUM_NAME::KEYWORD_TRY | flag::Type::KEYWORD,
+    KEYWORD_TRUE = token::ENUM_NAME::KEYWORD_TRUE | flag::Type::KEYWORD,
+    KEYWORD_DEF = token::ENUM_NAME::KEYWORD_DEF | flag::Type::KEYWORD,
+    KEYWORD_FROM = token::ENUM_NAME::KEYWORD_FROM | flag::Type::KEYWORD,
+    KEYWORD_NONLOCAL = token::ENUM_NAME::KEYWORD_NONLOCAL | flag::Type::KEYWORD,
+    KEYWORD_WHILE = token::ENUM_NAME::KEYWORD_WHILE | flag::Type::KEYWORD,
+    KEYWORD_AND = token::ENUM_NAME::KEYWORD_AND | flag::Type::KEYWORD,
+    KEYWORD_DEL = token::ENUM_NAME::KEYWORD_DEL | flag::Type::KEYWORD,
+    KEYWORD_GLOBAL = token::ENUM_NAME::KEYWORD_GLOBAL | flag::Type::KEYWORD,
+    KEYWORD_NOT = token::ENUM_NAME::KEYWORD_NOT | flag::Type::KEYWORD,
+    KEYWORD_WITH = token::ENUM_NAME::KEYWORD_WITH | flag::Type::KEYWORD,
+    KEYWORD_AS = token::ENUM_NAME::KEYWORD_AS | flag::Type::KEYWORD,
+    KEYWORD_ELIF = token::ENUM_NAME::KEYWORD_ELIF | flag::Type::KEYWORD,
+    KEYWORD_IF = token::ENUM_NAME::KEYWORD_IF | flag::Type::KEYWORD,
+    KEYWORD_OR = token::ENUM_NAME::KEYWORD_OR | flag::Type::KEYWORD,
+    KEYWORD_YIELD = token::ENUM_NAME::KEYWORD_YIELD | flag::Type::KEYWORD,
+    KEYWORD_ASSERT = token::ENUM_NAME::KEYWORD_ASSERT | flag::Type::KEYWORD,
+    KEYWORD_ELSE = token::ENUM_NAME::KEYWORD_ELSE | flag::Type::KEYWORD,
+    KEYWORD_IMPORT = token::ENUM_NAME::KEYWORD_IMPORT | flag::Type::KEYWORD,
+    KEYWORD_PASS = token::ENUM_NAME::KEYWORD_PASS | flag::Type::KEYWORD,
+    KEYWORD_BREAK = token::ENUM_NAME::KEYWORD_BREAK | flag::Type::KEYWORD,
+    KEYWORD_EXCEPT = token::ENUM_NAME::KEYWORD_EXCEPT | flag::Type::KEYWORD,
+    KEYWORD_IN = token::ENUM_NAME::KEYWORD_IN | flag::Type::KEYWORD,
+    KEYWORD_RAISE = token::ENUM_NAME::KEYWORD_RAISE | flag::Type::KEYWORD)
+#undef ENUM_NAME
 
 /*
  * The '=' token is classified as a deliminar;
@@ -553,78 +546,77 @@ TURTLE_CLASS(
  * ┌─┤                               ┌───> LOGICAL_OPERATION class
  * 01000000 00000000 00000000 00000000
  */
-#define __ENUM_NAME Arithmetic
+#define ENUM_NAME Arithmetic
 TURTLE_CLASS(
-    __ENUM_NAME,
+    ENUM_NAME,
     ARITHMETIC_OPERATION =
-        M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_OPERATION) |
+        M_turtle_flag(token::ENUM_NAME::ARITHMETIC_OPERATION) |
         flag::Type::ARITHMETIC,
 
-    ARITHMETIC_ADD = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_ADD) |
-                     flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_SUB = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_SUB) |
-                     flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_MULL = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_MULL) |
-                      flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_DIV = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_DIV) |
-                     flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_MOD = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_MOD) |
-                     flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_FLOOR = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_FLOOR) |
-                       flag::__ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_ADD = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_ADD) |
+                     flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_SUB = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_SUB) |
+                     flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_MULL = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_MULL) |
+                      flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_DIV = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_DIV) |
+                     flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_MOD = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_MOD) |
+                     flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_FLOOR = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_FLOOR) |
+                       flag::ENUM_NAME::ARITHMETIC_OPERATION,
     ARITHMETIC_EXPONENTIAL =
-        M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_EXPONENTIAL) |
-        flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_BIT_AND = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_BIT_AND) |
-                         flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_BIT_OR = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_BIT_OR) |
-                        flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_BIT_XOR = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_BIT_XOR) |
-                         flag::__ENUM_NAME::ARITHMETIC_OPERATION,
-    ARITHMETIC_BIT_NOT = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_BIT_NOT) |
-                         flag::__ENUM_NAME::ARITHMETIC_OPERATION,
+        M_turtle_flag(token::ENUM_NAME::ARITHMETIC_EXPONENTIAL) |
+        flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_BIT_AND = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_BIT_AND) |
+                         flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_BIT_OR = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_BIT_OR) |
+                        flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_BIT_XOR = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_BIT_XOR) |
+                         flag::ENUM_NAME::ARITHMETIC_OPERATION,
+    ARITHMETIC_BIT_NOT = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_BIT_NOT) |
+                         flag::ENUM_NAME::ARITHMETIC_OPERATION,
     ARITHMETIC_BIT_LEFT_SHIFT =
-        M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_BIT_LEFT_SHIFT) |
-        flag::__ENUM_NAME::ARITHMETIC_OPERATION,
+        M_turtle_flag(token::ENUM_NAME::ARITHMETIC_BIT_LEFT_SHIFT) |
+        flag::ENUM_NAME::ARITHMETIC_OPERATION,
     ARITHMETIC_BIT_RIGHT_SHIFT =
-        M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_BIT_RIGHT_SHIFT) |
-        flag::__ENUM_NAME::ARITHMETIC_OPERATION,
+        M_turtle_flag(token::ENUM_NAME::ARITHMETIC_BIT_RIGHT_SHIFT) |
+        flag::ENUM_NAME::ARITHMETIC_OPERATION,
 
-    ARITHMETIC_EQUAL_TO =
-        M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_EQUAL_TO) |
-        flag::Type::ARITHMETIC,
+    ARITHMETIC_EQUAL_TO = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_EQUAL_TO) |
+                          flag::Type::ARITHMETIC,
 
-    ARITHMETIC_NOT_EQUAL = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_NOT) |
-                           flag::__ENUM_NAME::ARITHMETIC_EQUAL_TO,
+    ARITHMETIC_NOT_EQUAL = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_NOT) |
+                           flag::ENUM_NAME::ARITHMETIC_EQUAL_TO,
 
     ARITHMETIC_GREATER_THAN =
-        M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_GREATER_THAN) |
+        M_turtle_flag(token::ENUM_NAME::ARITHMETIC_GREATER_THAN) |
         flag::Type::ARITHMETIC,
 
     ARITHMETIC_LESS_THAN =
-        M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_LESS_THAN) |
+        M_turtle_flag(token::ENUM_NAME::ARITHMETIC_LESS_THAN) |
         flag::Type::ARITHMETIC,
 
-    ARITHMETIC_NOT = M_turtle_flag(token::__ENUM_NAME::ARITHMETIC_NOT) |
+    ARITHMETIC_NOT = M_turtle_flag(token::ENUM_NAME::ARITHMETIC_NOT) |
                      flag::Type::ARITHMETIC,
 
     ARITHMETIC_GREATER_THAN_EQUAL_TO =
-        (flag::__ENUM_NAME::ARITHMETIC_EQUAL_TO |
-         flag::__ENUM_NAME::ARITHMETIC_GREATER_THAN),
+        (flag::ENUM_NAME::ARITHMETIC_EQUAL_TO |
+         flag::ENUM_NAME::ARITHMETIC_GREATER_THAN),
 
-    ARITHMETIC_LESS_THAN_EQUAL_TO = (flag::__ENUM_NAME::ARITHMETIC_EQUAL_TO |
-                                     flag::__ENUM_NAME::ARITHMETIC_LESS_THAN))
-#undef __ENUM_NAME
-}  // namespace flag
+    ARITHMETIC_LESS_THAN_EQUAL_TO = (flag::ENUM_NAME::ARITHMETIC_EQUAL_TO |
+                                     flag::ENUM_NAME::ARITHMETIC_LESS_THAN))
+#undef ENUM_NAME
+} // namespace flag
 
-}  // namespace token
+} // namespace token
 
 // convert 8 byte string to 64 bit intager
 consteval uint_fast64_t sti(const char *str) {
   uint_fast64_t res = 0;
   for (uint_fast8_t i = 0; str[i]; ++i) {
     res <<= 8;
-    res |= str[i];
+    res |= static_cast<uint_fast64_t>(str[i]);
   }
   return res;
 }
@@ -653,7 +645,7 @@ constexpr uint_fast64_t turtleBuiltinTokenMap[][2] = {
     {sti("."), token::flag::Operator::DELIMITER_PERIOD},
     {sti("="), token::flag::Operator::DELIMITER_ASSIGN},
     {sti("->"), token::flag::Operator::DELIMINAR_RARROW},
-    {sti(":="), token::flag::Control::UNSUPPORTED},  // NOTE -- walrus
+    {sti(":="), token::flag::Control::UNSUPPORTED}, // NOTE -- walrus
     {sti("@"), token::flag::Operator::DELIMITER_AT_SIGN},
     {sti("@="), token::flag::Operator::ARITHMETIC_AT_ASSIGN},
     {sti("+"), token::flag::Arithmetic::ARITHMETIC_ADD},
@@ -727,10 +719,10 @@ constexpr uint_fast64_t turtleBuiltinTokenMap[][2] = {
     {sti("in"), token::flag::Keyword::KEYWORD_IN},
     {sti("raise"), token::flag::Keyword::KEYWORD_RAISE}};
 
-    struct lexeme_t {
-        std::string_view str;
-        uint_fast16_t x = 0, y = 0;
-    };
+struct lexeme_t {
+  std::string_view str;
+  uint_fast16_t x = 0, y = 0;
+};
 struct node_t {
   turtle::turtle_flag_t flag = 0u;
   turtle::lexeme_t token;
@@ -758,6 +750,6 @@ struct document_t {
   std::vector<struct node_t> nodes;
   std::vector<std::any> data;
 };
-}  // namespace turtle
+} // namespace turtle
 
-#endif  // _TURTLE_TOKEN_H
+#endif // TURTLE_TOKEN_H

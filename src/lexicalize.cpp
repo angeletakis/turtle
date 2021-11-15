@@ -2,12 +2,13 @@
 // Created by alex on 11/11/21.
 //
 #include "boost/foreach.hpp"
-#include "global.h"
-#include "node.h"
+#include "global.hpp"
+#include "node.hpp"
 #include <ctre.hpp>
 #include <string>
 #include <string_view>
 #include <vector>
+#include "lexicalize.hpp"
 
 void lexicalize(std::string &filedata, std::vector<turtle::lexeme_t> &lexemes) {
   // clang-format off
@@ -85,6 +86,6 @@ Replace regex comments with )"${2}R"( by using (\(\?#([^)]*)\))|^
         {.str = str,
          .x = col,
          .y = row});
-    str[0] == '\n' || str[0] == '\r' ? ++row, col = 0 : col += str.length();
+    str[0] == '\n' || str[0] == '\r' ? static_cast<void>(++row), col = 0 : col += str.length();
   }
 }

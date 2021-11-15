@@ -6,7 +6,7 @@
 #define TURTLE_TURTLE_H
 
 #include <boost/filesystem.hpp>
-#include "global.h"
+#include "global.hpp"
 #include "boost/program_options.hpp"
 int turtle_main(const boost::program_options::variables_map args);
 

@@ -2,15 +2,15 @@
 // Created by alex on 11/11/21.
 //
 
-#include "turtle.h"
+#include "turtle.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/log/trivial.hpp>
 
 #include "boost/program_options.hpp"
-#include "global.h"
-#include "lexicalize.h"
-#include "node.h"
+#include "global.hpp"
+#include "lexicalize.hpp"
+#include "node.hpp"
 
 int turtle_main(const boost::program_options::variables_map args) {
   const boost::filesystem::path file = args["file"].as<std::string>();
