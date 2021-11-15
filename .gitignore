@@ -35,6 +35,7 @@
 *.cbp
 
 # CMake auto generated files
+_deps
 **/CMakeLists.txt.user
 **/CMakeCache.txt
 **/CMakeFiles
@@ -43,12 +44,13 @@
 **/Makefile
 **/install_manifest.txt
 **/compile_commands.json
-_deps
 **/*.cmake
+
 # Keep cmake modules
 !cmake/
 
 # Do not commit the build directory
+build/**
 !build/README.md
 
 # CMakeModule Cotire
@@ -56,7 +58,9 @@ cotire/
 turtle_CXX_cotire.cmake
 
 # Compiled files
-bin/
+bin/**
+!bin/README.md
+tests/bin
 lib/
 
 # IDE files
