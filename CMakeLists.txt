@@ -23,7 +23,7 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++${CMAKE_CXX_STANDARD}")
 
 #warnings
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -fmax-errors=5 -Werror -Wno-c99-designator -Wno-unused-command-line-argument")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weverything -fmax-errors=5 -Werror -Wno-c99-designator -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-enum-enum-conversion -Wno-deprecated-anon-enum-enum-conversion")
 
 # Debug flags
