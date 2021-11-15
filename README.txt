@@ -25,6 +25,7 @@ If you would like to contribute you would need
 Build instructions
 
     git clone https://github.com/angeletakis/turtle.git
-    cd turtle
-    cmake .
+    mkdir turtle/build
+    cd turtle/build
+    cmake ..
     make
