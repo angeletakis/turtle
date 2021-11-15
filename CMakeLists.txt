@@ -6,7 +6,7 @@ set(PROJECT_DESCRIPTION "My Python -> C++ Transcompiler")
 set(PROJECT_MAINTAINER_GIT_USERNAME "angeletakis")
 set(PROJECT_MAINTAINER_NAME "Alexios Angel")
 
-set (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+set (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(cotire)
 include(ucm)
 
@@ -84,7 +84,7 @@ else ()
     message(FATAL_ERROR "Cannot find Boost")
 endif ()
 
-#Git outputs a ugly message when downloading the release version of 
+#Git outputs a ugly message when downloading the release version of
 execute_process(
         COMMAND git config --global --get advice.detachedHead
         OUTPUT_VARIABLE advice-detachedHead-bool
