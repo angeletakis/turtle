@@ -1,1 +1,6 @@
-BasedOnStyle: LLVM
+---
+Language:        Cpp
+BasedOnStyle:    LLVM
+ColumnLimit:     80
+IndentWidth:     2
+Standard:        c++20
