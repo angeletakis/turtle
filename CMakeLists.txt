@@ -15,6 +15,7 @@ file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
+file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/build")
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
 
@@ -30,7 +31,7 @@ ucm_add_flags(CXX "-std=c++${CMAKE_CXX_STANDARD}")
 #warnings
 ucm_add_flags(CXX
         -Wall -Wextra -Wnewline-eof
-        -Werror -ferror-limit=5 -fmax-errors=5
+        -ferror-limit=5 -fmax-errors=5
         -Wno-c99-designator -Wno-unused-command-line-argument
         -Wno-deprecated-enum-enum-conversion -Wno-deprecated-anon-enum-enum-conversion
         #-Weverything
@@ -96,11 +97,10 @@ set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(
         ctre
         GIT_REPOSITORY https://github.com/hanickadot/compile-time-regular-expressions.git
-        GIT_TAG 95c63867bf0f6497825ef6cf44a7d0791bd25883 # v3.4.1
+        GIT_TAG main
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD TRUE
 )
-
 FetchContent_MakeAvailable(ctre)
 
 include_directories("${ctre_SOURCE_DIR}/single-header")
