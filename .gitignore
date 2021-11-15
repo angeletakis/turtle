@@ -49,9 +49,7 @@ _deps
 !cmake/
 
 # Do not commit the build directory
-build/
-!build/.github/
-!build/.github/*
+!build/README.md
 
 # CMakeModule Cotire
 cotire/
