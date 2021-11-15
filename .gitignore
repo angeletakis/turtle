@@ -57,6 +57,7 @@ turtle_CXX_cotire.cmake
 
 # Compiled files
 bin/
+lib/
 
 # IDE files
 .idea/
