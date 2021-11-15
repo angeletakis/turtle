@@ -22,11 +22,17 @@ set(CMAKE_BUILD_TYPE Debug)
 #vanilla flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++${CMAKE_CXX_STANDARD}")
 
-#warnings and debug info
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall -Wextra -Werror -Wno-c99-designator")
+#warnings
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -fmax-errors=5 -Werror -Wno-c99-designator -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-enum-enum-conversion -Wno-deprecated-anon-enum-enum-conversion")
 
-#reqiured flags to build project
+# Debug flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3 -fno-eliminate-unused-debug-types -fdebug-macro")
+
+# Static Analysis flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze -Xanalyzer -analyzer-output=text")
+
+#required flags to build project
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char -fno-strict-aliasing -fbracket-depth=512 -march=native")
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
@@ -45,11 +51,14 @@ find_package(Boost 1.74 REQUIRED
         log log_setup
         stacktrace_basic
         stacktrace_backtrace
-        stacktrace_addr2line
-        stacktrace_noop)
+        #stacktrace_addr2line
+        #stacktrace_noop
+        )
 
 #Boost Macros to enable libaries
-add_compile_definitions(BOOST_STACKTRACE_LINK)
+#add_compile_definitions(BOOST_STACKTRACE_LINK)
+# boost::stacktrace - requires pthread, backtrace
+# boost::log        - requires pthread
 add_compile_definitions(BOOST_ENABLE_ASSERT_DEBUG_HANDLER)
 add_compile_definitions(BOOST_STACKTRACE_DYN_LINK)
 add_compile_definitions(BOOST_LOG_DYN_LINK)
