@@ -24,7 +24,12 @@ int main(int argc = 0, char **argv = nullptr) {
   // clang-format on
 
   po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
+  try {
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+  } catch (std::exception const&  ex) {
+      LOG(error) << ex.what();
+      exit(1);
+  }
   po::notify(vm);
 
   if (vm["help"].as<bool>()) {

@@ -3,7 +3,7 @@
 
 # Looks for a .github directory and outputs a markdown file
 turtle_root="$HOME/turtle"
-dirs=( . src include lib docs scripts )
+dirs=( . src include lib docs scripts build bin )
 
 for d in "${dirs[@]}"; do
   mkdwnfile="$turtle_root/$d/.github/README.md"

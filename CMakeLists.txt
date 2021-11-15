@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.8.0)
 include(FetchContent)
-
 project(turtle VERSION 1.0)
 set(PROJECT_DESCRIPTION "My Python -> C++ Transcompiler")
 set(PROJECT_MAINTAINER_GIT_USERNAME "angeletakis")
@@ -15,7 +14,6 @@ file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
-file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/build")
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
 
@@ -132,7 +130,7 @@ add_executable(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
-        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
+        CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${Threads_LIBRARIES} ${Backtrace_LIBRARIES})
 cotire(${PROJECT_NAME})

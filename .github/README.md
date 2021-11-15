@@ -24,7 +24,6 @@ sudo apt install -y cmake clang libboost-all-dev build-essential pandoc
 ### Build instructions
 ```Bash
 git clone https://github.com/angeletakis/turtle.git
-mkdir turtle/build
 cd turtle/build
 cmake ..
 make

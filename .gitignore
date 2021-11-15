@@ -50,6 +50,8 @@ _deps
 
 # Do not commit the build directory
 build/
+!build/.github/
+!build/.github/*
 
 # CMakeModule Cotire
 cotire/
