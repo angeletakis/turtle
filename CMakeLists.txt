@@ -6,7 +6,7 @@ set(PROJECT_DESCRIPTION "My Python -> C++ Transcompiler")
 set(PROJECT_MAINTAINER_GIT_USERNAME "angeletakis")
 set(PROJECT_MAINTAINER_NAME "Alexios Angel")
 
-set (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+set (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 include(cotire)
 include(ucm)
 
