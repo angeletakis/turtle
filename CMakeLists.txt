@@ -16,7 +16,7 @@ file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 
-include_directories("${PROJECT_SOURCE_DIR}/include")
+include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -29,13 +29,13 @@ ucm_add_flags(CXX "-std=c++${CMAKE_CXX_STANDARD}")
 # Most of these disabled warnings are a good idea tho
 #warnings
 ucm_add_flags(CXX
-        -Wall -Wextra -Wnewline-eof -Wmissing-prototypes
+        -Wall -Wextra -Wnewline-eof
         -Werror -ferror-limit=5 -fmax-errors=5
         -Wno-c99-designator -Wno-unused-command-line-argument
         -Wno-deprecated-enum-enum-conversion -Wno-deprecated-anon-enum-enum-conversion
         #-Weverything
         #-Wno-c++20-compat -Wno-c++98-compat -Wno-pre-c++17-compat -Wno-c++98-compat-pedantic -Wno-undef
-        #-Wno-padded -Wno-gnu-anonymous-struct -Wno-nested-anon-types
+        #-Wno-padded -Wno-gnu-anonymous-struct -Wno-nested-anon-types -Wmissing-prototypes
         #-Wno-missing-noreturn -Wno-float-equal -Wno-implicit-int-float-conversion
         #-Wno-sign-conversion -Wno-ctad-maybe-unsupported -Wno-class-varargs
         #-Wno-old-style-cast -Wno-shadow -Wno-reserved-macro-identifier
@@ -46,10 +46,6 @@ ucm_add_flags(CXX -ggdb3 -fno-eliminate-unused-debug-types -fdebug-macro)
 
 #required flags to build project
 ucm_add_flags(CXX -fsigned-char -fno-strict-aliasing -fbracket-depth=512 -march=native)
-
-include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 
 #Generate the static library from the library sources
 
@@ -133,5 +129,12 @@ add_executable(${PROJECT_NAME}
         include/turtle.hpp
         include/node.hpp)
 
+set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
+        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
+
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${Threads_LIBRARIES} ${Backtrace_LIBRARIES})
 cotire(${PROJECT_NAME})
+
+add_subdirectory(tests)
