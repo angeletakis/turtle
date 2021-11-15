@@ -16,6 +16,7 @@ sudo apt install -y cmake clang libboost-all-dev build-essential
 ```
 
 If you would like to contribute you would need
+
  - `pandoc`
 ```Bash
 sudo apt install -y cmake clang libboost-all-dev build-essential pandoc
