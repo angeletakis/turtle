@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8.0)
-include(FetchContent)
+
 project(turtle VERSION 1.0)
 set(PROJECT_DESCRIPTION "My Python -> C++ Transcompiler")
 set(PROJECT_MAINTAINER_GIT_USERNAME "angeletakis")
@@ -14,6 +14,7 @@ file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
+file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/deps")
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
 
@@ -41,7 +42,7 @@ ucm_add_flags(CXX
         )
 
 # Debug flags
-ucm_add_flags(CXX -ggdb3 -fno-eliminate-unused-debug-types -fdebug-macro)
+ucm_add_flags(CXX -ggdb3 -fno-eliminate-unused-debug-types -rdynamic -fdebug-macro)
 
 #required flags to build project
 ucm_add_flags(CXX -fsigned-char -fno-strict-aliasing -fbracket-depth=512 -march=native)
@@ -66,6 +67,7 @@ find_package(Boost 1.74 REQUIRED
 # boost::log        - requires pthread
 add_compile_definitions(BOOST_ENABLE_ASSERT_DEBUG_HANDLER)
 add_compile_definitions(BOOST_STACKTRACE_DYN_LINK)
+add_compile_definitions(BOOST_STACKTRACE_USE_BACKTRACE)
 add_compile_definitions(BOOST_LOG_DYN_LINK)
 find_package(Threads REQUIRED)
 find_package(Backtrace)
@@ -79,40 +81,25 @@ else ()
     message(FATAL_ERROR "Cannot find Boost")
 endif ()
 
-#Git outputs a ugly message when downloading the release version of
-execute_process(
-        COMMAND git config --global --get advice.detachedHead
-        OUTPUT_VARIABLE advice-detachedHead-bool
+macro(download_src url fpath)
+    if(NOT EXISTS "${fpath}")
+        file(DOWNLOAD
+                "${url}"
+                "${fpath}")
+    endif()
+endmacro()
+
+download_src(
+        "https://raw.githubusercontent.com/hanickadot/compile-time-regular-expressions/main/single-header/ctre.hpp"
+        "${PROJECT_SOURCE_DIR}/deps/ctre.hpp"
 )
 
-execute_process(
-        COMMAND git config --global advice.detachedHead false
+download_src(
+        "https://raw.githubusercontent.com/Neargye/magic_enum/master/include/magic_enum.hpp"
+        "${PROJECT_SOURCE_DIR}/deps/magic_enum.hpp"
 )
 
-message(STATUS "Fetching dependencies")
-
-set(FETCHCONTENT_QUIET FALSE)
-FetchContent_Declare(
-        ctre
-        GIT_REPOSITORY https://github.com/hanickadot/compile-time-regular-expressions.git
-        GIT_TAG main
-        GIT_PROGRESS TRUE
-        USES_TERMINAL_DOWNLOAD TRUE
-)
-FetchContent_MakeAvailable(ctre)
-
-include_directories("${ctre_SOURCE_DIR}/single-header")
-
-if (advice-detachedHead MATCHES "(true)|(false)")
-    execute_process(
-            COMMAND git config --global advice.detachedHead "${advice-detachedHead-bool}"
-    )
-else ()
-    execute_process(
-            COMMAND git config --global --unset advice.detachedHead
-    )
-endif ()
-
+include_directories("${PROJECT_SOURCE_DIR}/deps")
 
 # Add an executable with the above sources
 add_executable(${PROJECT_NAME}
@@ -125,7 +112,7 @@ add_executable(${PROJECT_NAME}
         include/global.hpp
         include/lexicalize.hpp
         include/turtle.hpp
-        include/node.hpp)
+        include/node.hpp src/init.cpp include/init.h include/tokenize.h src/tokenize.cpp)
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
@@ -135,4 +122,4 @@ set_target_properties(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${Threads_LIBRARIES} ${Backtrace_LIBRARIES})
 cotire(${PROJECT_NAME})
 
-add_subdirectory(tests)
+#add_subdirectory(tests)

@@ -35,7 +35,8 @@
 *.cbp
 
 # CMake auto generated files
-_deps
+_deps/
+deps/
 **/CMakeLists.txt.user
 **/CMakeCache.txt
 **/CMakeFiles

@@ -745,8 +745,11 @@ struct node_t {
 };
 
 struct document_t {
+  document_t() {}
+  std::string filedata;
   // Document Nodes
-  std::vector<struct lexeme_t> lexemes;
+  lexeme_t lexemes;
+  std::vector<struct lexeme_t> tokens;
   std::vector<struct node_t> nodes;
   std::vector<std::any> data;
 };

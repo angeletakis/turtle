@@ -1,14 +1,13 @@
 //
 // Created by alex on 11/11/21.
 //
-#include "boost/foreach.hpp"
+#include "lexicalize.hpp"
 #include "global.hpp"
 #include "node.hpp"
 #include <ctre.hpp>
 #include <string>
 #include <string_view>
 #include <vector>
-#include "lexicalize.hpp"
 
 void lexicalize(std::string &filedata, std::vector<turtle::lexeme_t> &lexemes) {
   // clang-format off
@@ -66,8 +65,7 @@ Replace regex comments with )"${2}R"( by using (\(\?#([^)]*)\))|^
                 R"((\s+))"                                                 //capture whitespace in order to keep track of position with ctre
         };
   // clang-format on
-  const auto &matches =
-      ctre::range<TokenRegex>(filedata);
+  const auto &matches = ctre::range<TokenRegex>(filedata);
   // std::distance is not constexpr thus it does not work with ctre
   auto distance = [](const auto &first, const auto &last) {
     size_t i = 0;
@@ -81,11 +79,8 @@ Replace regex comments with )"${2}R"( by using (\(\?#([^)]*)\))|^
 
   unsigned int col = 0, row = 0;
   for (const auto &match : matches) {
-      const auto &str = match.to_view();
-    lexemes.push_back(
-        {.str = str,
-         .x = col,
-         .y = row});
-    str[0] == '\n' || str[0] == '\r' ? static_cast<void>(++row), col = 0 : col += str.length();
+    const auto &str = match.to_view();
+    str[0] == '\n' || str[0] == '\r' ? ++row, col = 0 : col += str.length();
+    lexemes.push_back({.str = str, .x = col, .y = row});
   }
 }
