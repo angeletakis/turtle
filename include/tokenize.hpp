@@ -8,6 +8,6 @@
 #include "global.hpp"
 #include "node.hpp"
 
-void tokenize(std::vector<turtle::lexeme_t>& tokens);
+void tokenize(std::vector<turtle::lexeme_t> &tokens);
 
 #endif // TURTLE_TOKENIZE_H

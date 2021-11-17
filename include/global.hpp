@@ -14,55 +14,36 @@
 #define DEBUG_CPP
 #endif
 
-namespace boost
-{
-inline void
-assertion_failed_msg (char const *expr, char const *msg, char const *function,
-                      char const * /*file*/, long /*line*/)
-{
-  std::cerr << "Expression '" << expr << "' is false in function '" << function
-            << "': " << (msg ? msg : "<...>") << ".\n"
+namespace boost {
+inline void assertion_failed_msg(char const *expr, char const *msg, char const *function, char const * /*file*/,
+                                 long /*line*/) {
+  std::cerr << "Expression '" << expr << "' is false in function '" << function << "': " << (msg ? msg : "<...>")
+            << ".\n"
             << "Backtrace:\n"
-            << boost::stacktrace::stacktrace () << '\n';
+            << boost::stacktrace::stacktrace() << '\n';
 
-  std::abort ();
+  std::abort();
 }
 
-inline void
-assertion_failed (char const *expr, char const *function, char const *file,
-                  long line)
-{
-  ::boost::assertion_failed_msg (expr, nullptr /*nullptr*/, function, file,
-                                 line);
+inline void assertion_failed(char const *expr, char const *function, char const *file, long line) {
+  ::boost::assertion_failed_msg(expr, nullptr /*nullptr*/, function, file, line);
 }
 } // namespace boost
 
-typedef boost::error_info<struct tag_stacktrace, boost::stacktrace::stacktrace>
-    stacktrace_error_info;
-template <class E>
-void
-BOOST_THROW (const E &e)
-{
-  throw boost::enable_error_info (e)
-      << stacktrace_error_info (boost::stacktrace::stacktrace ());
+typedef boost::error_info<struct tag_stacktrace, boost::stacktrace::stacktrace> stacktrace_error_info;
+template <class E> void BOOST_THROW(const E &e) {
+  throw boost::enable_error_info(e) << stacktrace_error_info(boost::stacktrace::stacktrace());
 }
 
-
-void panic (std::string msg = "",
-            const std::experimental::source_location &location
-            = std::experimental::source_location::current (),
-            const boost::stacktrace::stacktrace &st
-            = boost::stacktrace::stacktrace ());
+void panic(std::string msg = "",
+           const std::experimental::source_location &location = std::experimental::source_location::current(),
+           const boost::stacktrace::stacktrace &st = boost::stacktrace::stacktrace());
 
 // gives slightly more detail
-#define PANIC_MACRO(msg)                                                      \
-  do                                                                          \
-    {                                                                         \
-      LOG (error) << msg << std::endl                                         \
-                  << BOOST_CURRENT_LOCATION << std::endl                      \
-                  << boost::stacktrace::stacktrace ();                        \
-      exit (1);                                                               \
-    }                                                                         \
-  while (0)
+#define PANIC_MACRO(msg)                                                                                               \
+  do {                                                                                                                 \
+    LOG(error) << msg << std::endl << BOOST_CURRENT_LOCATION << std::endl << boost::stacktrace::stacktrace();          \
+    exit(1);                                                                                                           \
+  } while (0)
 
 #endif

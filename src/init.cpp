@@ -25,23 +25,22 @@ void init() {
     std::abort();
   });
   constexpr int signals[] = {
-      SIGSEGV,  // Invalid memory reference
-      SIGILL,   // Illegal Instruction
-      SIGFPE    // Floating point exception
+      SIGSEGV, // Invalid memory reference
+      SIGILL,  // Illegal Instruction
+      SIGFPE   // Floating point exception
   };
   for (const auto &signal_to_register : signals) {
     std::signal(signal_to_register, [](int signal) {
-      LOG(fatal) << strsignal(signal) << std::endl
-                 << boost::stacktrace::stacktrace();
+      LOG(fatal) << strsignal(signal) << std::endl << boost::stacktrace::stacktrace();
       std::abort();
     });
   }
 
   //%Severity%: %Message%
-  const auto &ft = boost::log::keywords::format =
-      boost::log::expressions::stream
-      << boost::log::expressions::attr<boost::log::trivial::severity_level,
-                                       severity_tag>("Severity")
-      << ": " << boost::log::expressions::smessage;
+  const auto &ft =
+      boost::log::keywords::format =
+          boost::log::expressions::stream
+          << boost::log::expressions::attr<boost::log::trivial::severity_level, severity_tag>("Severity") << ": "
+          << boost::log::expressions::smessage;
   boost::log::add_console_log(std::clog, ft);
 }

@@ -5,4 +5,4 @@
 #include "global.hpp"
 #include "node.hpp"
 
-void tokenize(std::vector<turtle::lexeme_t>& tokens) { return; }
+void tokenize(std::vector<turtle::lexeme_t> &tokens) { return; }

@@ -17,8 +17,7 @@
 #include "node.hpp"
 #include "turtle.hpp"
 
-int main(int argc = 0, char** argv = nullptr)
-{
+int main(int argc = 0, char **argv = nullptr) {
   // Declare the supported options.
   init();
   const auto vm = turtle_startup(argc, argv);
