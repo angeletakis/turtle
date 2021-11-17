@@ -9,13 +9,34 @@
 #include <boost/log/utility/manipulators/to_log.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
-#include "global.hpp"
+#include <csignal>
 #include <iostream>
 
+#include "global.hpp"
 
 void init() {
   struct severity_tag;
-  std::set_terminate(&terminate_handler);
+  // Terminate handler
+  std::set_terminate([](void) {
+    try {
+      std::cerr << boost::stacktrace::stacktrace();
+    } catch (...) {
+    }
+    std::abort();
+  });
+  constexpr int signals[] = {
+      SIGSEGV,  // Invalid memory reference
+      SIGILL,   // Illegal Instruction
+      SIGFPE    // Floating point exception
+  };
+  for (const auto &signal_to_register : signals) {
+    std::signal(signal_to_register, [](int signal) {
+      LOG(fatal) << strsignal(signal) << std::endl
+                 << boost::stacktrace::stacktrace();
+      std::abort();
+    });
+  }
+
   //%Severity%: %Message%
   const auto &ft = boost::log::keywords::format =
       boost::log::expressions::stream

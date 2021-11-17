@@ -2,12 +2,14 @@
 // Created by alex on 11/11/21.
 //
 #include "lexicalize.hpp"
-#include "global.hpp"
-#include "node.hpp"
+
 #include <ctre.hpp>
 #include <string>
 #include <string_view>
 #include <vector>
+
+#include "global.hpp"
+#include "node.hpp"
 
 void lexicalize(std::string &filedata, std::vector<turtle::lexeme_t> &lexemes) {
   // clang-format off
@@ -81,6 +83,6 @@ Replace regex comments with )"${2}R"( by using (\(\?#([^)]*)\))|^
   for (const auto &match : matches) {
     const auto &str = match.to_view();
     str[0] == '\n' || str[0] == '\r' ? ++row, col = 0 : col += str.length();
-    lexemes.push_back({.str = str, .x = col, .y = row});
+    lexemes.push_back({.data = str, .x = col, .y = row});
   }
 }
