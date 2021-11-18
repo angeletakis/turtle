@@ -2,7 +2,7 @@
 
 
 # Looks for a .github directory and outputs a markdown file
-turtle_root="$HOME/turtle"
+turtle_root=$( git rev-parse --show-toplevel )
 dirs=( . src include lib docs scripts build bin )
 
 for d in "${dirs[@]}"; do
