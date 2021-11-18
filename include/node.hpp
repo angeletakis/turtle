@@ -53,6 +53,7 @@
 #include <any>
 #include <cstddef>
 
+
 namespace turtle {
 // In case I want to change it to something bigger in the future
 typedef uint64_t turtle_flag_t;
@@ -527,8 +528,13 @@ TURTLE_CLASS(
 
 } // namespace token
 
-// convert 8 byte string to 64 bit intager
+int constexpr constexpr_strlen(const char *str) { return *str ? 1 + constexpr_strlen(str + 1) : 0; }
+
+// convert 8 byte string to 64 bit integer
 consteval uint_fast64_t sti(const char *str) {
+  // check if token is to big
+  //         throw a compile time error if is
+  constexpr_strlen(str) > sizeof(uint_fast64_t) ? throw : 0;
   uint_fast64_t res = 0;
   for (uint_fast8_t i = 0; str[i]; ++i) {
     res <<= 8;

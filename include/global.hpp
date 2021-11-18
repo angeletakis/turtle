@@ -13,7 +13,7 @@
 #ifndef NDEBUG
 #define DEBUG_CPP
 #endif
-
+using namespace std::literals;
 namespace boost {
 inline void assertion_failed_msg(char const *expr, char const *msg, char const *function, char const * /*file*/,
                                  long /*line*/) {
