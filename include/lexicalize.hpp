@@ -5,6 +5,7 @@
 #ifndef TURTLE_LEXICALIZE_H
 #define TURTLE_LEXICALIZE_H
 #include "node.hpp"
+#include "document_types.hpp"
 
 void lexicalize(std::string &filedata, std::vector<turtle::lexeme_t> &lexemes);
 

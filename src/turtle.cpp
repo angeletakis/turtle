@@ -26,7 +26,7 @@ boost::program_options::variables_map turtle_startup(int argc, char **argv) {
   po::options_description desc("Allowed options");
   desc.add_options()
   ("help,h", po::bool_switch(), "produce help message")
-  ("file,f", po::value<std::string>()->default_value("main.py"),  "filename to transcompile");
+  ("file,f", po::value<std::string>()->default_value("/home/alex/turtle/build/main.py"),  "filename to transcompile");
   // clang-format on
 
   po::variables_map vm;

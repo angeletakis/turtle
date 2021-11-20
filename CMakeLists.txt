@@ -5,6 +5,11 @@ set(PROJECT_DESCRIPTION "My Python -> C++ Transcompiler")
 set(PROJECT_MAINTAINER_GIT_USERNAME "angeletakis")
 set(PROJECT_MAINTAINER_NAME "Alexios Angel")
 
+# pass the argument -DCMAKE_CXX_COMPILER=/bin/clang++ to cmake if this occurs
+if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    MESSAGE(FATAL_ERROR "Clang is the only compiler that can compile this source.")
+endif()
+
 set (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(cotire)
 include(ucm)
@@ -42,7 +47,11 @@ ucm_add_flags(CXX
         )
 
 # Debug flags
-ucm_add_flags(CXX -ggdb3 -fno-eliminate-unused-debug-types -rdynamic -fdebug-macro)
+ucm_add_flags(CXX
+        -ggdb3 -fno-eliminate-unused-debug-types -rdynamic -fdebug-macro
+        -disable-llvm-optzns -fno-elide-constructors -fdebug-info-for-profiling
+        -fforce-dwarf-frame -gdwarf-5 -fdebug-types-section
+        -fdebug-ranges-base-address -gmodules -fstack-usage --verify-debug-info)
 
 #required flags to build project
 ucm_add_flags(CXX -fsigned-char -fno-strict-aliasing -fbracket-depth=512 -march=native)
@@ -58,7 +67,7 @@ find_package(Boost 1.74 REQUIRED
         stacktrace_basic
         stacktrace_backtrace
         #stacktrace_addr2line
-        #stacktrace_noop
+        #stacktrace_noop #uncomment when not using stacktrace anymore
         )
 
 #Boost Macros to enable libaries
@@ -75,7 +84,6 @@ find_package(Backtrace)
 
 # check if boost was found
 if (Boost_FOUND)
-    message("boost found")
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 else ()
     message(FATAL_ERROR "Cannot find Boost")
@@ -107,12 +115,15 @@ add_executable(${PROJECT_NAME}
         src/global.cpp
         src/lexicalize.cpp
         src/turtle.cpp
-        src/node.cpp
-
+        src/init.cpp
+        src/tokenize.cpp
+        include/init.hpp
+        include/tokenize.hpp
         include/global.hpp
         include/lexicalize.hpp
         include/turtle.hpp
-        include/node.hpp src/init.cpp include/init.h include/tokenize.h src/tokenize.cpp)
+        include/node.hpp
+        include/document_types.hpp)
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES

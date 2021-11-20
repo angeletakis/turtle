@@ -16,6 +16,7 @@
 #include "init.hpp"
 #include "node.hpp"
 #include "turtle.hpp"
+#include "document_types.hpp"
 
 int main(int argc = 0, char **argv = nullptr) {
   // Declare the supported options.

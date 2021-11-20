@@ -7,6 +7,7 @@
 
 #include "global.hpp"
 #include "node.hpp"
+#include "document_types.hpp"
 
 void tokenize(std::vector<turtle::lexeme_t> &tokens);
 

@@ -3,7 +3,7 @@
 
 /*
  * This file contains the magic numbers and data structure
- * definitions nessessary to parse Python. Cython does exist,
+ * definitions necessary to parse Python. Cython does exist,
  * but it does not generate readable code that is a literal
  * translation of a file. With the introduction of c++2a,
  * almost all constructs used in python can be used in C++,
@@ -14,13 +14,13 @@
  * to C++20 in order to create C++ bash scripts that run fast.
  *
  * Throughout this file I make long comments -- these are not
- * ment for you, but me, as I have a terrible memory.
+ * meant for you, but me, as I have a terrible memory.
  *
  * The use of enums are really great as they can be
  * used for pre-calculated magic numbers.
  * What we need to do is take the "magic" out of magic numbers.
  *
- * Currently the the token flag is represented by a 32 bit unsigned integer.
+ * Currently the token flag is represented by a 64-bit unsigned integer.
  *
  * Different Types of tokens are separated into classes;
  * Separating tokens into classes makes it possible to compresses
@@ -29,14 +29,14 @@
  *
  * Once a specific token has been identified as some sort of predefined or
  * identifier it's token string is deleted from program memory, as
- * it is more efficent to just store the identifying "fingerprint" of a token
- * then a multi character string.
+ * it is more efficient to just store the identifying "fingerprint" of a token
+ * than a multi character string.
  *      Example:
  *          The '(' left brace token is predefined, give it the numeric id
  *          DELIMITER_CURVED_LEFT_BRACE, delete token string and go to
  *          the next token
  *
- * At the parse tree stage, each deliminar          is a     terminal,
+ * At the parse tree stage, each deliminator        is a     terminal,
  *                          each identifier or data is a non-terminal
  *
  */
@@ -53,21 +53,9 @@
 #include <any>
 #include <cstddef>
 
+#include "document_types.hpp"
 
 namespace turtle {
-// In case I want to change it to something bigger in the future
-typedef uint64_t turtle_flag_t;
-
-template <class T> using turtle_vector = std::basic_string<T>;
-
-typedef long turtle_int;
-typedef turtle_int turtle_float;
-typedef std::any turtle_any;
-using std::any_cast;
-
-typedef turtle_int t_int;
-typedef turtle_float t_float;
-typedef turtle_any t_any;
 /*struct turtle_num {
     turtle_int sig_digits = 0;
     turtle_int num        = 0;
@@ -86,10 +74,11 @@ consteval turtle::turtle_flag_t constexpr_ceil(const float num) {
              : static_cast<turtle::turtle_flag_t>(num) + ((num > 0) ? 1 : 0);
 }
 
-consteval size_t Log2(const size_t n) { return ((n < 2) ? 0 : 1 + Log2(n / 2)); }
-consteval size_t num_of_bits_required(const size_t max) { return constexpr_ceil(Log2(max) + 1); }
+consteval size_t constexpr_log2(const size_t n) { return ((n < 2) ? 0 : 1 + constexpr_log2(n / 2)); }
+consteval size_t num_of_bits_required(const size_t max) { return constexpr_ceil(constexpr_log2(max) + 1); }
 #define bit_range_will_not_overflow(r1, r2) (((r1) + (r2)) < bits_in_turtle_flag)
 #define bit_range_will_not_underflow(r1) ((r1) >= 0)
+
 #define CHECK_BIT_RANGE(BITS_NEEDED, MESSAGE)                                                                          \
   static_assert(bit_range_will_not_overflow(num_of_bits_required_for_token_type, (BITS_NEEDED)) &&                     \
                     bit_range_will_not_underflow(BITS_NEEDED),                                                         \
@@ -100,8 +89,8 @@ consteval size_t num_of_bits_required(const size_t max) { return constexpr_ceil(
 #define TURTLE_CLASS(ENAME, ...) BETTER_ENUM(ENAME, turtle_flag, __VA_ARGS__, NUMBER_OF_ENUMS)
 #else
 #define TURTLE_CLASS(ENAME, ...)                                                                                       \
-  struct ENAME {                                                                                                       \
-    enum : turtle_flag_t { __VA_ARGS__, NUMBER_OF_ENUMS };                                                             \
+  namespace ENAME {                                                                                                    \
+  enum : turtle_flag_t { __VA_ARGS__, NUMBER_OF_ENUMS };                                                               \
   };
 #endif
 
@@ -117,9 +106,9 @@ TURTLE_CLASS(ENUM_NAME, CONTROL,
 #undef ENUM_NAME
 } // namespace turtle::token
 
-constexpr auto num_of_bits_required_for_token_type = num_of_bits_required(8);
+constexpr auto num_of_bits_required_for_token_type = 8u;
 //= num_of_bits_required (turtle::token::Type::NUMBER_OF_ENUMS);
-constexpr auto bits_in_turtle_flag = (sizeof(turtle::turtle_flag_t) * 8);
+constexpr auto bits_in_turtle_flag = (sizeof(turtle::turtle_flag_t) * 8u);
 // make constexpr in order to reduce compile time
 constexpr auto tokenTypeOffset = (bits_in_turtle_flag - num_of_bits_required_for_token_type);
 
@@ -162,7 +151,7 @@ TURTLE_CLASS(ENUM_NAME, DATA_TYPE_STRING,
              DATA_TYPE_COMMENT)
 #undef /*cuz its*/ ENUM_NAME // sun
 
-#define ENUM_NAME Operator
+#define ENUM_NAME Delimiter
 TURTLE_CLASS(ENUM_NAME,
              DELIMITER_AT_SIGN, // '@' Python decorator, akin to passing a
                                 // function pointer
@@ -192,8 +181,8 @@ TURTLE_CLASS(ENUM_NAME, KEYWORD_FALSE, KEYWORD_CLASS, KEYWORD_FINALLY, KEYWORD_I
 
 #define ENUM_NAME Arithmetic
 TURTLE_CLASS(ENUM_NAME,
-             ARITHMETIC_OPERATION = 0u, // 1 = ARITHMETIC, 0 = LOGICAL (greater
-                                        // than, less than, equal to, not)
+             ARITHMETIC_OPERATION = 0u, // 1 = ARITHMETIC,
+                                        // 0 = LOGICAL (greater than, less than, equal to, not)
 
              ARITHMETIC_ADD, ARITHMETIC_SUB, ARITHMETIC_MULL, ARITHMETIC_DIV, ARITHMETIC_MOD, ARITHMETIC_FLOOR,
              ARITHMETIC_EXPONENTIAL, ARITHMETIC_BIT_AND, ARITHMETIC_BIT_OR, ARITHMETIC_BIT_XOR, ARITHMETIC_BIT_NOT,
@@ -216,7 +205,7 @@ namespace flag {
 /*
  * Below are the precomputed flags
  *
- * This program strives for low memeory use at the cost of speed
+ * This program strives for low memory use at the cost of speed
  *
  *  TokenFlags
  *
@@ -238,17 +227,19 @@ namespace flag {
 // Refer to the huge comment in the flag namespace on wtf this is & does
 #define M_typeFlagMacro(N) (N << tokenTypeOffset)
 #define ENUM_NAME Type
-TURTLE_CLASS(ENUM_NAME, CONTROL = M_typeFlagMacro(token::ENUM_NAME::CONTROL),
+TURTLE_CLASS(ENUM_NAME,
+             CONTROL = M_typeFlagMacro(token::ENUM_NAME::CONTROL),
              DELIMITERS = M_typeFlagMacro(token::ENUM_NAME::DELIMITERS),
              OPERATION = M_typeFlagMacro(token::ENUM_NAME::OPERATION),
-             KEYWORD = M_typeFlagMacro(token::ENUM_NAME::KEYWORD), DATA = M_typeFlagMacro(token::ENUM_NAME::DATA),
+             KEYWORD = M_typeFlagMacro(token::ENUM_NAME::KEYWORD),
+             DATA = M_typeFlagMacro(token::ENUM_NAME::DATA),
              IDENTIFIER = M_typeFlagMacro(token::ENUM_NAME::IDENTIFIER))
 #undef ENUM_NAME
 /*
  *
  *        ┌──> Flag Type - Control Class Id
  *        │
- * ┌──────┤  ┌───> Is null token
+ * ┌──────┤  ┌────────────────────────┬─> Is null token
  * 00000000  00000000 00000000 00000000
  *
  *
@@ -256,10 +247,11 @@ TURTLE_CLASS(ENUM_NAME, CONTROL = M_typeFlagMacro(token::ENUM_NAME::CONTROL),
  *
  *        ┌──> Flag Type - Control Class Id
  *        │
- * ┌──────┤       ┌───> Is not null
+ * ┌──────┤
  * 00000000  11111111 11111111 11111111
- *            │└──────────────────────┴──> Amount Of whitespace
- *            └────> Is newline
+ *           │                       │└────> Is newline
+ *           └───────────────────────┴──> Amount Of whitespace
+ *
  */
 
 #define ENUM_NAME Control
@@ -269,7 +261,6 @@ TURTLE_CLASS(ENUM_NAME, NULL_TOKEN = 0u | flag::Type::CONTROL,
              ENDMARKER = M_turtle_flag(token::ENUM_NAME::ENDMARKER) | M_turtle_flag(token::ENUM_NAME::HAS_VALUE) |
                          flag::Type::CONTROL,
              ERRORTOKEN, TokenError, UNSUPPORTED)
-#undef offset
 #undef ENUM_NAME
 
 /*
@@ -278,11 +269,11 @@ TURTLE_CLASS(ENUM_NAME, NULL_TOKEN = 0u | flag::Type::CONTROL,
         ( flag::IDENTIFIER XOR Node.NodeFlag )
 
 
-      ┌──> Flag Type - IDENTIFIER Class Id
-      │
-    ┌─┤
-    10100000  00000000 00000000 00000000
-       └───────────────────────────────┴──> Numeric Id
+           ┌──> Flag Type - IDENTIFIER Class Id
+           │
+    ┌──────┤
+    00000101  00000000 00000000 00000000
+              └────────────────────────┴──> Numeric Id
 */
 
 /*
@@ -291,12 +282,12 @@ TURTLE_CLASS(ENUM_NAME, NULL_TOKEN = 0u | flag::Type::CONTROL,
            ┌──> Flag Type - DATA Class Id
            │
     ┌──────┤
-    10000000  00001000 00000000 00000000
-              ││││└──> Is string
-              │││└───> Is raw string
-              ││└────> Is formated string
-              │└─────> Format Type
-              └──────> Is unicode string
+    00000001  00001000 00000000 00000000
+                                   ││││└──> Is string
+                                   │││└───> Is raw string
+                                   ││└────> Is formated string
+                                   │└─────> Format Type
+                                   └──────> Is unicode string
  */
 #define ENUM_NAME Data
 TURTLE_CLASS(ENUM_NAME, DATA_TYPE_STRING = M_turtle_flag(token::ENUM_NAME::DATA_TYPE_STRING) | flag::Type::DATA,
@@ -335,10 +326,10 @@ TURTLE_CLASS(ENUM_NAME, DATA_TYPE_STRING = M_turtle_flag(token::ENUM_NAME::DATA_
  *        ┌──> Flag Type - Deliminar Class Id
  *        │         ┌──> Other Deliminar tokens
  *        │         │  ┌──> DELIMITER_BRACE token class
- * ┌──────┤       ┌─┴─┐│┌───> DELIMITER_ASSIGN operator class
+ * ┌──────┤       ┌─┴─┐│┌───> DELIMITER_ASSIGN Delimiter class
  * 00000001  ... 01111111
  *
- * DELIMITER_ASSIGN operator class:
+ * DELIMITER_ASSIGN Delimiter class:
  * Any Deliminar that has the 1st LSB flag set is a ASSIGN-ment
  *
  * DELIMITER_BRACE token class:
@@ -353,7 +344,7 @@ TURTLE_CLASS(ENUM_NAME, DATA_TYPE_STRING = M_turtle_flag(token::ENUM_NAME::DATA_
 //
 // Then give it the DELIMITER_ASSIGN flag
 
-#define ENUM_NAME Operator
+#define ENUM_NAME Delimiter
 // offset the arithmetic tokens to be next to the DELIMITER_ASSIGN token
 #define DeliminarAssignOffset_M(x) (x << (token::ENUM_NAME::DELIMITER_ASSIGN + 1u))
 TURTLE_CLASS(
@@ -384,8 +375,7 @@ TURTLE_CLASS(
     ARITHMETIC_BIT_RIGHT_SHIFT_ASSIGN = DeliminarAssignOffset_M(token::Arithmetic::ARITHMETIC_BIT_RIGHT_SHIFT) |
                                         flag::ENUM_NAME::DELIMITER_ASSIGN,
 
-    DELIMITER_AT_SIGN = M_turtle_flag(token::ENUM_NAME::DELIMITER_AT_SIGN) | flag::Type::DELIMITERS,
-    //@=
+    DELIMITER_AT_SIGN = M_turtle_flag(token::ENUM_NAME::DELIMITER_AT_SIGN) | flag::Type::DELIMITERS, //@=
     ARITHMETIC_AT_ASSIGN = flag::ENUM_NAME::DELIMITER_AT_SIGN | flag::ENUM_NAME::DELIMITER_ASSIGN,
     DELIMINAR_RARROW = M_turtle_flag(token::ENUM_NAME::DELIMINAR_RARROW) | flag::Type::DELIMITERS,
     DELIMITER_COLON = M_turtle_flag(token::ENUM_NAME::DELIMITER_COLON) | flag::Type::DELIMITERS,
@@ -528,13 +518,16 @@ TURTLE_CLASS(
 
 } // namespace token
 
-int constexpr constexpr_strlen(const char *str) { return *str ? 1 + constexpr_strlen(str + 1) : 0; }
+size_t constexpr constexpr_strlen(const char *str) { return *str ? 1 + constexpr_strlen(str + 1) : 0; }
 
 // convert 8 byte string to 64 bit integer
-consteval uint_fast64_t sti(const char *str) {
+// Will throw ex or compiler errors if const char * is too big
+constexpr uint_fast64_t sti(const char *str) {
   // check if token is to big
   //         throw a compile time error if is
-  constexpr_strlen(str) > sizeof(uint_fast64_t) ? throw : 0;
+  if (std::is_constant_evaluated()) {
+    constexpr_strlen(str) > sizeof(uint_fast64_t) ? throw : 0;
+  }
   uint_fast64_t res = 0;
   for (uint_fast8_t i = 0; str[i]; ++i) {
     res <<= 8;
@@ -550,135 +543,94 @@ consteval uint_fast64_t sti(const char *str) {
  * for a safer guarantee that the program will run effectively,
  * efficiently, and fast
  */
-constexpr uint_fast64_t turtleBuiltinTokenMap[][2] = {
-    {sti(","), token::flag::Operator::DELIMITER_COMMA},
-    {sti(";"), token::flag::Operator::DELIMITER_SEMICOLON},
-    {sti(":"), token::flag::Operator::DELIMITER_COLON},
-    {sti("()"), token::flag::Operator::DELIMITER_CURLY_RIGHT_BRACE},
-    {sti("("), token::flag::Operator::DELIMITER_CURVED_LEFT_BRACE},
-    {sti(")"), token::flag::Operator::DELIMITER_CURVED_RIGHT_BRACE},
-    {sti("{}"), token::flag::Operator::DELIMITER_CURLY_RIGHT_BRACE},
-    {sti("{"), token::flag::Operator::DELIMITER_CURLY_LEFT_BRACE},
-    {sti("}"), token::flag::Operator::DELIMITER_CURLY_RIGHT_BRACE},
-    {sti("[]"), token::flag::Operator::DELIMITER_CURLY_RIGHT_BRACE},
-    {sti("["), token::flag::Operator::DELIMITER_SQUARE_LEFT_BRACE},
-    {sti("]"), token::flag::Operator::DELIMITER_SQUARE_RIGHT_BRACE},
-    {sti("..."), token::flag::Operator::DELIMITER_ELLIPSIS},
-    {sti("."), token::flag::Operator::DELIMITER_PERIOD},
-    {sti("="), token::flag::Operator::DELIMITER_ASSIGN},
-    {sti("->"), token::flag::Operator::DELIMINAR_RARROW},
-    {sti(":="), token::flag::Control::UNSUPPORTED}, // NOTE -- walrus
-    {sti("@"), token::flag::Operator::DELIMITER_AT_SIGN},
-    {sti("@="), token::flag::Operator::ARITHMETIC_AT_ASSIGN},
-    {sti("+"), token::flag::Arithmetic::ARITHMETIC_ADD},
-    {sti("-"), token::flag::Arithmetic::ARITHMETIC_SUB},
-    {sti("*"), token::flag::Arithmetic::ARITHMETIC_MULL},
-    {sti("/"), token::flag::Arithmetic::ARITHMETIC_DIV},
-    {sti("%"), token::flag::Arithmetic::ARITHMETIC_MOD},
-    {sti(">"), token::flag::Arithmetic::LOGICAL_GREATER_THAN},
-    {sti("<"), token::flag::Arithmetic::LOGICAL_LESS_THAN},
-    {sti("&"), token::flag::Arithmetic::ARITHMETIC_BIT_AND},
-    {sti("|"), token::flag::Arithmetic::ARITHMETIC_BIT_OR},
-    {sti("^"), token::flag::Arithmetic::ARITHMETIC_BIT_XOR},
-    {sti("~"), token::flag::Arithmetic::ARITHMETIC_BIT_NOT},
-    {sti("!"), token::flag::Arithmetic::LOGICAL_NOT},
-    {sti("=="), token::flag::Arithmetic::LOGICAL_EQUAL_TO},
-    {sti("!="), token::flag::Arithmetic::LOGICAL_NOT_EQUAL},
-    {sti("//"), token::flag::Arithmetic::ARITHMETIC_FLOOR},
-    {sti("**"), token::flag::Arithmetic::ARITHMETIC_EXPONENTIAL},
-    {sti("<<"), token::flag::Arithmetic::ARITHMETIC_BIT_LEFT_SHIFT},
-    {sti(">>"), token::flag::Arithmetic::ARITHMETIC_BIT_LEFT_SHIFT},
-    {sti("+="), token::flag::Operator::ARITHMETIC_ADD_ASSIGN},
-    {sti("-="), token::flag::Operator::ARITHMETIC_SUB_ASSIGN},
-    {sti("*="), token::flag::Operator::ARITHMETIC_MULL_ASSIGN},
-    {sti("/="), token::flag::Operator::ARITHMETIC_DIV_ASSIGN},
-    {sti("%="), token::flag::Operator::ARITHMETIC_MOD_ASSIGN},
-    {sti(">="), token::flag::Arithmetic::LOGICAL_GREATER_THAN_EQUAL_TO},
-    {sti("<="), token::flag::Arithmetic::LOGICAL_LESS_THAN_EQUAL_TO},
-    {sti("//="), token::flag::Operator::ARITHMETIC_FLOOR_ASSIGN},
-    {sti("**="), token::flag::Operator::ARITHMETIC_EXPONENTIAL_ASSIGN},
-    {sti("&="), token::flag::Operator::ARITHMETIC_BIT_AND_ASSIGN},
-    {sti("|="), token::flag::Operator::ARITHMETIC_BIT_OR_ASSIGN},
-    {sti("^="), token::flag::Operator::ARITHMETIC_BIT_XOR_ASSIGN},
 
-    //"~=" operator does not exist
+constexpr auto turtleBuiltinTokenMap = std::to_array(
+    {std::to_array({sti(","), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_COMMA)}),
+     std::to_array({sti(";"), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_SEMICOLON)}),
+     std::to_array({sti(":"), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_COLON)}),
+     std::to_array({sti("("), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_CURVED_LEFT_BRACE)}),
+     std::to_array({sti(")"), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_CURVED_RIGHT_BRACE)}),
+     std::to_array({sti("{"), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_CURLY_LEFT_BRACE)}),
+     std::to_array({sti("}"), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_CURLY_RIGHT_BRACE)}),
+     std::to_array({sti("["), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_SQUARE_LEFT_BRACE)}),
+     std::to_array({sti("]"), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_SQUARE_RIGHT_BRACE)}),
+     std::to_array({sti("..."), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_ELLIPSIS)}),
+     std::to_array({sti("."), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_PERIOD)}),
+     std::to_array({sti("="), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_ASSIGN)}),
+     std::to_array({sti("->"), static_cast<uint64_t>(token::flag::Delimiter::DELIMINAR_RARROW)}),
+     std::to_array({sti(":="), static_cast<uint64_t>(token::flag::Control::UNSUPPORTED)}), // NOTE -- walrus
+     std::to_array({sti("@"), static_cast<uint64_t>(token::flag::Delimiter::DELIMITER_AT_SIGN)}),
+     std::to_array({sti("@="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_AT_ASSIGN)}),
+     std::to_array({sti("+"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_ADD)}),
+     std::to_array({sti("-"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_SUB)}),
+     std::to_array({sti("*"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_MULL)}),
+     std::to_array({sti("/"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_DIV)}),
+     std::to_array({sti("%"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_MOD)}),
+     std::to_array({sti(">"), static_cast<uint64_t>(token::flag::Arithmetic::LOGICAL_GREATER_THAN)}),
+     std::to_array({sti("<"), static_cast<uint64_t>(token::flag::Arithmetic::LOGICAL_LESS_THAN)}),
+     std::to_array({sti("&"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_BIT_AND)}),
+     std::to_array({sti("|"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_BIT_OR)}),
+     std::to_array({sti("^"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_BIT_XOR)}),
+     std::to_array({sti("~"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_BIT_NOT)}),
+     std::to_array({sti("!"), static_cast<uint64_t>(token::flag::Arithmetic::LOGICAL_NOT)}),
+     std::to_array({sti("=="), static_cast<uint64_t>(token::flag::Arithmetic::LOGICAL_EQUAL_TO)}),
+     std::to_array({sti("!="), static_cast<uint64_t>(token::flag::Arithmetic::LOGICAL_NOT_EQUAL)}),
+     std::to_array({sti("//"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_FLOOR)}),
+     std::to_array({sti("**"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_EXPONENTIAL)}),
+     std::to_array({sti("<<"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_BIT_LEFT_SHIFT)}),
+     std::to_array({sti(">>"), static_cast<uint64_t>(token::flag::Arithmetic::ARITHMETIC_BIT_LEFT_SHIFT)}),
+     std::to_array({sti("+="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_ADD_ASSIGN)}),
+     std::to_array({sti("-="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_SUB_ASSIGN)}),
+     std::to_array({sti("*="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_MULL_ASSIGN)}),
+     std::to_array({sti("/="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_DIV_ASSIGN)}),
+     std::to_array({sti("%="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_MOD_ASSIGN)}),
+     std::to_array({sti(">="), static_cast<uint64_t>(token::flag::Arithmetic::LOGICAL_GREATER_THAN_EQUAL_TO)}),
+     std::to_array({sti("<="), static_cast<uint64_t>(token::flag::Arithmetic::LOGICAL_LESS_THAN_EQUAL_TO)}),
+     std::to_array({sti("//="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_FLOOR_ASSIGN)}),
+     std::to_array({sti("**="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_EXPONENTIAL_ASSIGN)}),
+     std::to_array({sti("&="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_BIT_AND_ASSIGN)}),
+     std::to_array({sti("|="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_BIT_OR_ASSIGN)}),
+     std::to_array({sti("^="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_BIT_XOR_ASSIGN)}),
 
-    {sti("<<="), token::flag::Operator::ARITHMETIC_BIT_LEFT_SHIFT_ASSIGN},
-    {sti(">>="), token::flag::Operator::ARITHMETIC_BIT_RIGHT_SHIFT_ASSIGN},
-    {sti("async"), token::flag::Control::UNSUPPORTED},
-    {sti("await"), token::flag::Control::UNSUPPORTED},
-    {sti("False"), token::flag::Keyword::KEYWORD_FALSE},
-    {sti("True"), token::flag::Keyword::KEYWORD_TRUE},
-    {sti("class"), token::flag::Keyword::KEYWORD_CLASS},
-    {sti("finally"), token::flag::Keyword::KEYWORD_FINALLY},
-    {sti("is"), token::flag::Keyword::KEYWORD_IS},
-    {sti("return"), token::flag::Keyword::KEYWORD_RETURN},
-    {sti("None"), token::flag::Keyword::KEYWORD_NONE},
-    {sti("continue"), token::flag::Keyword::KEYWORD_CONTINUE},
-    {sti("for"), token::flag::Keyword::KEYWORD_FOR},
-    {sti("lambda"), token::flag::Keyword::KEYWORD_LAMBDA},
-    {sti("try"), token::flag::Keyword::KEYWORD_TRY},
-    {sti("def"), token::flag::Keyword::KEYWORD_DEF},
-    {sti("from"), token::flag::Keyword::KEYWORD_FROM},
-    {sti("nonlocal"), token::flag::Keyword::KEYWORD_NONLOCAL},
-    {sti("while"), token::flag::Keyword::KEYWORD_WHILE},
-    {sti("and"), token::flag::Keyword::KEYWORD_AND},
-    {sti("del"), token::flag::Keyword::KEYWORD_DEL},
-    {sti("global"), token::flag::Keyword::KEYWORD_GLOBAL},
-    {sti("not"), token::flag::Keyword::KEYWORD_NOT},
-    {sti("with"), token::flag::Keyword::KEYWORD_WITH},
-    {sti("as"), token::flag::Keyword::KEYWORD_AS},
-    {sti("elif"), token::flag::Keyword::KEYWORD_ELIF},
-    {sti("if"), token::flag::Keyword::KEYWORD_IF},
-    {sti("or"), token::flag::Keyword::KEYWORD_OR},
-    {sti("yield"), token::flag::Keyword::KEYWORD_YIELD},
-    {sti("assert"), token::flag::Keyword::KEYWORD_ASSERT},
-    {sti("else"), token::flag::Keyword::KEYWORD_ELSE},
-    {sti("import"), token::flag::Keyword::KEYWORD_IMPORT},
-    {sti("pass"), token::flag::Keyword::KEYWORD_PASS},
-    {sti("break"), token::flag::Keyword::KEYWORD_BREAK},
-    {sti("except"), token::flag::Keyword::KEYWORD_EXCEPT},
-    {sti("in"), token::flag::Keyword::KEYWORD_IN},
-    {sti("raise"), token::flag::Keyword::KEYWORD_RAISE}};
+     //"~=" Delimiter does not exist
 
-struct lexeme_t {
-  std::any data;
-  uint_fast16_t x = 0, y = 0;
-};
-struct node_t {
-  union {
-    turtle::turtle_flag_t flag = 0u;
-    struct {
-      std::array<std::byte, sizeof(turtle::turtle_flag_t)> flag_byte;
-    };
-  };
-  turtle::lexeme_t token;
-  union {
-    node_t *child[2] = {nullptr, nullptr};
-    struct {
-      node_t *left;
-      node_t *right;
-    };
-  };
-  /*
-  [[nodiscard]] constexpr turtle::turtle_flag_t type() const;
-  [[nodiscard]] constexpr turtle::turtle_flag_t type_of(
-      turtle::turtle_flag_t _f);
-  [[nodiscard]] constexpr turtle::turtle_flag_t test_bit(unsigned char i)
-  const;
-  [[nodiscard]] constexpr turtle::turtle_flag_t hasType(
-      turtle::turtle_flag_t _f) const;
-  [[nodiscard]] constexpr turtle::turtle_flag_t hasFlag(
-      const turtle::turtle_flag_t _f);*/
-};
-
-struct document_t {
-  std::string filedata;
-  // Document Nodes
-  std::vector<struct lexeme_t> tokens;
-  std::vector<struct node_t> nodes;
-  std::vector<std::any> data;
-};
+     std::to_array({sti("<<="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_BIT_LEFT_SHIFT_ASSIGN)}),
+     std::to_array({sti(">>="), static_cast<uint64_t>(token::flag::Delimiter::ARITHMETIC_BIT_RIGHT_SHIFT_ASSIGN)}),
+     std::to_array({sti("async"), static_cast<uint64_t>(token::flag::Control::UNSUPPORTED)}),
+     std::to_array({sti("await"), static_cast<uint64_t>(token::flag::Control::UNSUPPORTED)}),
+     std::to_array({sti("False"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_FALSE)}),
+     std::to_array({sti("True"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_TRUE)}),
+     std::to_array({sti("class"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_CLASS)}),
+     std::to_array({sti("finally"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_FINALLY)}),
+     std::to_array({sti("is"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_IS)}),
+     std::to_array({sti("return"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_RETURN)}),
+     std::to_array({sti("None"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_NONE)}),
+     std::to_array({sti("continue"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_CONTINUE)}),
+     std::to_array({sti("for"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_FOR)}),
+     std::to_array({sti("lambda"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_LAMBDA)}),
+     std::to_array({sti("try"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_TRY)}),
+     std::to_array({sti("def"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_DEF)}),
+     std::to_array({sti("from"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_FROM)}),
+     std::to_array({sti("nonlocal"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_NONLOCAL)}),
+     std::to_array({sti("while"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_WHILE)}),
+     std::to_array({sti("and"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_AND)}),
+     std::to_array({sti("del"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_DEL)}),
+     std::to_array({sti("global"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_GLOBAL)}),
+     std::to_array({sti("not"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_NOT)}),
+     std::to_array({sti("with"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_WITH)}),
+     std::to_array({sti("as"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_AS)}),
+     std::to_array({sti("elif"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_ELIF)}),
+     std::to_array({sti("if"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_IF)}),
+     std::to_array({sti("or"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_OR)}),
+     std::to_array({sti("yield"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_YIELD)}),
+     std::to_array({sti("assert"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_ASSERT)}),
+     std::to_array({sti("else"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_ELSE)}),
+     std::to_array({sti("import"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_IMPORT)}),
+     std::to_array({sti("pass"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_PASS)}),
+     std::to_array({sti("break"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_BREAK)}),
+     std::to_array({sti("except"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_EXCEPT)}),
+     std::to_array({sti("in"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_IN)}),
+     std::to_array({sti("raise"), static_cast<uint64_t>(token::flag::Keyword::KEYWORD_RAISE)})});
 } // namespace turtle
 
 #endif // TURTLE_TOKEN_H

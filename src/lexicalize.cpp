@@ -10,6 +10,7 @@
 
 #include "global.hpp"
 #include "node.hpp"
+#include "document_types.hpp"
 
 void lexicalize(std::string &filedata, std::vector<turtle::lexeme_t> &lexemes) {
   // clang-format off
@@ -43,26 +44,26 @@ Replace regex comments with )"${2}R"( by using (\(\?#([^)]*)\))|^
         //when rEgEX is A LaNGUAgE
         static constexpr ctll::fixed_string TokenRegex {
                 R"([a-zA-Z]{0,2}?(("|')(\2{2})?)((?:[^\\"]|\\.|\\)*\1)?|)" //capture strings - check later on if string
-                //                  prefix is valid and the string terminates
+                                                                           //                  prefix is valid and the string terminates
                 R"((#[^\r\n]*)|)"                                          //capture comments
                 R"(([\n\r][ \t]*)|)"                                       //capture newlines
                 R"((\\[^\r\n]*)|)"                                         //capture \TheBackslashAndAnythingAfterIt
                 R"(()"
-                R"((\.{3})|)"                                          //capture ...
-                R"((->)|)"                                             //capture ->
-                //fucking floating point numbers
-                R"((\d[\d_]*\.[\d_]*\d[\d_]*[eE]-?[\d_]*)|)"           //capture exponential floating point literals
-                R"((\d[\d_]*\.[\d_]*\d[\d_]*[\w]*)|)"                  //capture floating point literals -> \d.\d [suffix]
-                R"((\d[\d_]*\.[eE]-?[\d_]*)|)"                         //capture exponential floating point literals
-                R"((\d[\d_]*\.\w*)|)"                                  //capture floating point literals -> \d.   [suffix]
-                R"((\.\d[\d_]*[eE]-?[\d_]*)|)"                         //capture exponential floating point literals
-                R"((\.\d[\d_]*\w*)|)"                                  //capture floating point literals ->   .\d [suffix]
-                R"((\d[\d_]*[eE]-?[\d_]*)|)"                           //capture exponential literals
-                R"(([<>*\/]{2})=?|)"                                   //capture 2-3 character operators
-                R"(([!%&*+\-<=>@\/\\^|:]=))"                           //capture 2 caracter operators
+                R"((\.{3})|)"                                              //capture ...
+                R"((->)|)"                                                 //capture ->
+                                                                           //fucking floating point numbers
+                R"((\d[\d_]*\.[\d_]*\d[\d_]*[eE]-?[\d_]*)|)"               //capture exponential floating point literals
+                R"((\d[\d_]*\.[\d_]*\d[\d_]*[\w]*)|)"                      //capture floating point literals -> \d.\d [suffix]
+                R"((\d[\d_]*\.[eE]-?[\d_]*)|)"                             //capture exponential floating point literals
+                R"((\d[\d_]*\.\w*)|)"                                      //capture floating point literals -> \d.   [suffix]
+                R"((\.\d[\d_]*[eE]-?[\d_]*)|)"                             //capture exponential floating point literals
+                R"((\.\d[\d_]*\w*)|)"                                      //capture floating point literals ->   .\d [suffix]
+                R"((\d[\d_]*[eE]-?[\d_]*)|)"                               //capture exponential literals
+                R"(([<>*\/]{2})=?|)"                                       //capture 2-3 character operators
+                R"(([!%&*+\-<=>@\/\\^|:]=))"                               //capture 2 caracter operators
                 R"()|)"
                 R"((\{\}|\(\)|\[\])|)"                                     //capture empty braces. Due to the fact that theres nothing in
-                //   them we can combine them as a single token
+                                                                           //   them we can combine them as a single token
                 R"(([!-\/:-@\[-^{-~]|[^\s!-\/:-@\[-^{-~]+)|)"              //capture anything else
                 R"((\s+))"                                                 //capture whitespace in order to keep track of position with ctre
         };
@@ -81,7 +82,7 @@ Replace regex comments with )"${2}R"( by using (\(\?#([^)]*)\))|^
 
   unsigned int col = 0, row = 0;
   for (const auto &match : matches) {
-    const auto &str = match.to_view();
+    const auto& str = match.to_string();
     str[0] == '\n' || str[0] == '\r' ? ++row, col = 0 : col += str.length();
     lexemes.push_back({.data = str, .x = col, .y = row});
   }
